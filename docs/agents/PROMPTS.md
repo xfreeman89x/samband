@@ -58,6 +58,7 @@ Create initial RFC drafts:
     RFC-0005 Mesh Routing
     RFC-0006 Encrypted Channel Payload
     RFC-0007 PTT Arbitration
+    RFC-0008 Audio Transport
 
 Create initial ADRs for:
 
@@ -65,7 +66,8 @@ Create initial ADRs for:
 - native Android/iOS reference apps;
 - simulator-first development;
 - protocol specification authority;
-- transport abstraction.
+- transport abstraction;
+- canonical repository layout.
 
 Define dependency rules.
 
@@ -524,7 +526,7 @@ Tests must demonstrate:
 
 1. direct delivery;
 2. two-hop delivery;
-3. four-hop delivery;
+3. three-hop delivery (`A -> B -> C -> D`);
 4. foreign relay;
 5. route loss;
 6. route replacement;

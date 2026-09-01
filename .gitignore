@@ -1,0 +1,50 @@
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
+tmp/
+
+# Rust
+target/
+
+# Node-based tooling
+node_modules/
+coverage/
+
+# Android and Gradle
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+
+# Apple platforms
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Python validation tools
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Simulator-generated output
+simulator/output/
+simulator/artifacts/

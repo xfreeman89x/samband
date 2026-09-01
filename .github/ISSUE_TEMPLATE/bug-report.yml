@@ -1,0 +1,48 @@
+name: Bug report
+description: Report reproducible behavior that conflicts with documented Samband behavior.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include credentials, private keys, personal data, private captures,
+        audio, or exploitable security details. Use the private process in
+        SECURITY.md for vulnerabilities.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Observed and expected behavior
+      description: Explain what happened and what governing document led you to expect something else.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a synthetic scenario, seed, revision, and commands when possible.
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Tested revision or release
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Relevant environment
+      description: Tool, OS, simulator, device, and transport versions without secrets or local absolute paths.
+  - type: textarea
+    id: authority
+    attributes:
+      label: Related RFC, ADR, specification, or shared contract
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: This report contains no sensitive data, audio, or private vulnerability details.
+          required: true
