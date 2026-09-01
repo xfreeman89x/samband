@@ -36,4 +36,3 @@ invariants. They do not choose packet bytes, identity algorithms, routing
 algorithms, group-key schemes, PTT arbitration, or audio framing. Those choices
 require the RFC and review gates listed in
 [`shared-contracts.md`](shared-contracts.md).
-

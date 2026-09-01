@@ -125,4 +125,3 @@ new identifiers and record the affected releases.
 ADRs follow a parallel but implementation-only path: Proposed, review,
 Accepted/Rejected, then Superseded or Deprecated when needed. An ADR cannot
 bypass an RFC. Experiments can be prerequisites to ADR acceptance.
-

@@ -141,4 +141,3 @@ unauthorized actions, monopolization limits, and version mismatch.
 - [`RFC-0003`](RFC-0003-channel-identity-and-membership.md)
 - [`RFC-0005`](RFC-0005-mesh-routing.md)
 - [`RFC-0008`](RFC-0008-audio-transport.md)
-

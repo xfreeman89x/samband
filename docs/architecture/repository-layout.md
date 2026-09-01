@@ -77,4 +77,3 @@ as ordinary pull requests when they preserve these boundaries.
 Generated files must live next to a documented generator policy or in ignored
 build/output directories. Secrets, local credentials, captured private traffic,
 and generated audio never belong in the repository.
-

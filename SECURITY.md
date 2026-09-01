@@ -59,4 +59,3 @@ Never commit credentials, tokens, private keys, personal data, captured network
 traffic containing private material, or private channel secrets. Never persist
 raw or encoded audio, transcripts, conversations, or voice history. Diagnostic
 fixtures must use synthetic identities and payloads.
-

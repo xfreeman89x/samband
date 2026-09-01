@@ -10,4 +10,3 @@ measured experiments before architecture acceptance.
 
 Android code may implement adapters and application policy but may not redefine
 shared protocol contracts.
-

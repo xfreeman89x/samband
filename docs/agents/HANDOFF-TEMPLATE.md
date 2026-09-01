@@ -43,4 +43,3 @@ Contracts, reviews, tools, devices, or decisions still required.
 ## NEXT RECOMMENDED STEP
 
 One bounded next action and its owner. Do not start the next wave implicitly.
-

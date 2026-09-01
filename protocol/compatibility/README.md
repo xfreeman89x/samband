@@ -10,4 +10,3 @@ Pre-v1 releases may change incompatibly when documented. No compatibility
 promise exists until a release explicitly states one. Protocol v1.0 requires
 the independent interoperability evidence in
 [`../../ROADMAP.md`](../../ROADMAP.md).
-

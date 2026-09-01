@@ -87,4 +87,3 @@ explicitly defines a narrower supported contract. The v1.0 gate is specified in
 The project follows the [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Security
 reports follow [`SECURITY.md`](SECURITY.md). Governance changes use a pull
 request and, when they alter decision rights or protocol authority, an ADR.
-

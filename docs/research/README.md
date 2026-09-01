@@ -14,4 +14,3 @@ Every experiment should define:
 - result, raw non-sensitive evidence, and impact on RFC/ADR status.
 
 The initial queue is [`experiment-backlog.md`](experiment-backlog.md).
-

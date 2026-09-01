@@ -11,4 +11,3 @@ vectors.
 Required scenarios and anti-shortcut rules are defined in
 [`../docs/architecture/simulator-first.md`](../docs/architecture/simulator-first.md).
 Routing semantics remain blocked on RFC-0005 review.
-

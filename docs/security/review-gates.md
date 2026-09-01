@@ -22,4 +22,3 @@ Until SG-001 through the relevant gate are complete, documentation and UI use
 precise phrases such as "design target" or "protected synthetic payload" and do
 not claim reviewed end-to-end encryption, anonymity, unlinkability, forward
 secrecy, or post-compromise security.
-

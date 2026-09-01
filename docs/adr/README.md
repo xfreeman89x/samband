@@ -27,4 +27,3 @@ link the records.
 
 Copy [`ADR-TEMPLATE.md`](ADR-TEMPLATE.md) for new decisions. Use an RFC instead
 if peers or independent implementations could observe the choice.
-

@@ -26,4 +26,3 @@ and accepted RFCs outrank implementation behavior.
 - An **experiment** gathers evidence and does not create a protocol contract.
 
 Always check a document's status before treating it as authority.
-

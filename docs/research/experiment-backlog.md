@@ -28,4 +28,3 @@ Wave 0 should begin with EXP-002 through EXP-008 as scoped design evidence and
 planning, while implementation agents remain blocked. EXP-001 and simulator
 implementation follow only when required shared contracts authorize an
 experimental profile. Mobile and audio experiments follow the roadmap gates.
-

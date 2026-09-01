@@ -74,4 +74,3 @@ The bootstrap validator enforces documentation structure and decision-record
 metadata. Later implementation waves should add package-graph checks, forbidden
 import checks, dependency-license scanning, decoder fuzzing, and vector runners
 without making one operating system mandatory.
-

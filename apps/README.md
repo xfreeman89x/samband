@@ -11,4 +11,3 @@ the protocol. No application implementation exists.
 [`ADR-0005`](../docs/adr/ADR-0005-native-mobile-reference-apps.md) remains
 Proposed pending platform experiments. Apps must advertise actual runtime
 capabilities and must not simulate unsupported relay/background behavior.
-

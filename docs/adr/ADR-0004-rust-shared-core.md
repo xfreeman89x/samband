@@ -97,4 +97,3 @@ Agent 4 should review the eventual unsafe/secret-handling policy.
 - mobile prototype cost exceeds measured shared-core benefit;
 - supported future hardware cannot use the produced core;
 - FFI prevents required performance, lifecycle, or auditability.
-

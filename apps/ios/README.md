@@ -9,4 +9,3 @@ dynamic capabilities or documented unsupported states, not hidden protocol
 changes.
 
 iOS work waits for relevant Wave 0 contracts and platform experiment planning.
-

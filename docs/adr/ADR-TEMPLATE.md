@@ -62,4 +62,3 @@ State review requirements and new attack or supply-chain surface.
 ## Revisit triggers
 
 - Evidence that should cause a new ADR.
-

@@ -122,4 +122,3 @@ Security review and Agent 1 Protocol review are required by
 The network model does not require blockchain, cryptocurrency, permanent global
 consensus, a globally connected topology, a central channel server, or
 store-and-forward voice.
-

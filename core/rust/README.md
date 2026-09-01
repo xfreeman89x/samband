@@ -10,4 +10,3 @@ debugging, fuzzing, binary-size, and dependency implications.
 Any future code here must consume accepted protocol specification and canonical
 vectors and keep transports, UI, platform lifecycle, and audio persistence out
 of the portable core.
-

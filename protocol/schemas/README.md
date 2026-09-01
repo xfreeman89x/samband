@@ -10,4 +10,3 @@ host platforms, and covered by exact-byte plus malformed-input vectors.
 Schema selection requires Agent 1 Protocol review, Agent 4 parser/security
 review, cross-language feasibility evidence, license review, and an RFC when it
 affects wire behavior.
-

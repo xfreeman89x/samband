@@ -84,4 +84,3 @@ design is accepted by this ADR.
 
 - specification and vector governance cannot resolve repeated contradictions;
 - independent implementers cannot build from the published material.
-

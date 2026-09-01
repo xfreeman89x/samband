@@ -34,4 +34,3 @@ and security-review evidence.
 - [ ] I ran `python tools/validate_repository.py` and relevant component checks.
 - [ ] Required Protocol, Routing, and Security reviews are identified.
 - [ ] Known limitations, assumptions, and follow-up work are explicit.
-

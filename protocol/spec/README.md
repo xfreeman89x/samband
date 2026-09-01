@@ -19,4 +19,3 @@ Future specification work must cover, at minimum:
 
 No draft RFC text becomes normative merely by being copied here. Specification
 changes cite their accepted RFC and canonical vector coverage.
-

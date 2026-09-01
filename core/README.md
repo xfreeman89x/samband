@@ -10,4 +10,3 @@ and [`../docs/architecture/dependency-graph.md`](../docs/architecture/dependency
 Implementation is blocked on accepted or explicitly experimental shared
 contracts. A core cannot choose protocol, routing, identity, cryptography, PTT,
 or audio semantics by itself.
-

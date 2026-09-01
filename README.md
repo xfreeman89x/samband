@@ -31,9 +31,10 @@ Alice, member of channel 7                Carol, member of channel 7
               no channel 7 membership
 ```
 
-Relay nodes carry encrypted Samband traffic without needing channel
-membership or plaintext access. A node can be an endpoint, a relay, a future
-gateway, or several of these at once according to advertised capabilities.
+The design target is for relay nodes to forward opaque, protected channel
+payloads without needing channel membership or plaintext access. A node can be
+an endpoint, a relay, a future gateway, or several of these at once according
+to advertised capabilities.
 
 See the [network model](docs/architecture/network-model.md) and
 [glossary](docs/architecture/glossary.md) for the canonical terminology.
@@ -115,4 +116,3 @@ Contributions are welcome under Apache-2.0. The project uses public RFC and ADR
 records so independent implementers can understand why semantics changed.
 Review [`CONTRIBUTING.md`](CONTRIBUTING.md), [`GOVERNANCE.md`](GOVERNANCE.md),
 and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) before participating.
-

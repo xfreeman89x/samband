@@ -46,4 +46,3 @@ body:
       options:
         - label: This report contains no sensitive data, audio, or private vulnerability details.
           required: true
-

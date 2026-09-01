@@ -39,4 +39,3 @@ assumptions, mitigations, residual risks, verification plan, and explicit releas
 blockers. Each security-sensitive RFC must link to the applicable analysis.
 
 Protocol v1 cannot freeze while this document remains a placeholder.
-

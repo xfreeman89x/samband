@@ -88,4 +88,3 @@ side channels or platform secret storage. It must not log real secrets or audio.
 
 - the simulator cannot reuse physical-node contracts;
 - deterministic modeling demonstrably hides a critical class of required behavior.
-

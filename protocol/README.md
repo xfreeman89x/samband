@@ -22,4 +22,3 @@ inputs, not normative protocol text.
 Reference implementations consume this directory; they do not define it. A
 material semantic change begins with the RFC workflow. Schemas and vectors must
 be traceable to accepted specification sections.
-

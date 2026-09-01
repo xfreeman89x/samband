@@ -75,4 +75,3 @@ available at <https://www.contributor-covenant.org/version/2/1/code_of_conduct.h
 
 Community Impact Guidelines were inspired by Mozilla's code of conduct
 enforcement ladder.
-

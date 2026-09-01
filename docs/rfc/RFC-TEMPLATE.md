@@ -107,4 +107,3 @@ rejection date, and rationale. Do not fill this section by implication.
 ## References
 
 - Link related architecture, RFCs, ADRs, experiments, and external standards.
-

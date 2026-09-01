@@ -118,4 +118,3 @@ experiment has established a worthwhile boundary.
 A gateway is a transport/relay capability within Samband. It is not a backend,
 channel authority, generic proxy, or implicit decryption point. Gateway support
 requires an RFC and threat-model update.
-

@@ -148,4 +148,3 @@ duplicate messages, unknown capability transitions, and bounded overflow.
 - [`simulator-first.md`](../architecture/simulator-first.md)
 - [`RFC-0004`](RFC-0004-relay-envelope.md)
 - [`experiment-backlog.md`](../research/experiment-backlog.md)
-

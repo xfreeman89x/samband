@@ -46,4 +46,3 @@ One evidence level does not imply another.
 A milestone acceptance pull request should link the evidence, list reviewers,
 record residual risks, and update the roadmap. A demo without reproducible
 artifacts is progress but not milestone acceptance.
-

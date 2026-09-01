@@ -149,4 +149,3 @@ must fix all randomness explicitly.
 - [`RFC-0003`](RFC-0003-channel-identity-and-membership.md)
 - [`RFC-0004`](RFC-0004-relay-envelope.md)
 - [`review-gates.md`](../security/review-gates.md)
-

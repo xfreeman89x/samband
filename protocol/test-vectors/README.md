@@ -18,4 +18,3 @@ Rules:
 - bound inputs and expected resource behavior;
 - never mutate a vector published for a release; supersede it with provenance;
 - make generators deterministic and publicly runnable.
-

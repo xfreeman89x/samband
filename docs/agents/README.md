@@ -29,4 +29,3 @@ defines architecture/protocol/security; Wave 1 proves simulation; Wave 2 proves
 Android relay; Wave 3 adds realtime audio; Wave 4 proves cross-platform behavior.
 An agent may research an open question earlier, but cannot publish blocked
 semantics as Samband protocol.
-

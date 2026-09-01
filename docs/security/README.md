@@ -19,4 +19,3 @@ records. They must use standard cryptographic constructions and distinguish:
 
 Draft security documents are not security guarantees. Vulnerability reporting
 uses [`../../SECURITY.md`](../../SECURITY.md).
-

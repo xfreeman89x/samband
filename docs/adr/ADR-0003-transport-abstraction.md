@@ -86,4 +86,3 @@ core parsing. Link security cannot be confused with channel payload security.
 - experiments show required semantics cannot be expressed without transport-
   specific protocol profiles;
 - adapter abstraction creates unacceptable performance or lifecycle loss.
-
