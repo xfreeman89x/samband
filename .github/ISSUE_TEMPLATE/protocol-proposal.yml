@@ -1,0 +1,69 @@
+name: Protocol proposal or ambiguity
+description: Propose a protocol change, record an ambiguity, or request an RFC.
+title: "rfc: "
+labels:
+  - protocol
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Protocol behavior is changed through the RFC process. Describe alternatives
+        before implementation. Security-sensitive details that would enable an
+        exploit belong in the private reporting process.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Interoperability problem
+      description: What can peers or independent implementations not determine today?
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Shared contracts affected
+      description: List identity, channel, envelope, routing, security, PTT, audio, versioning, or vectors.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and evidence
+      description: List viable alternatives, tradeoffs, and experiments needed. Do not present one as silently accepted.
+    validations:
+      required: true
+  - type: dropdown
+    id: protocol_review
+    attributes:
+      label: Wire-format or peer-visible impact
+      options:
+        - Yes - Agent 1 Protocol review required
+        - Unsure - Protocol review required to classify
+        - No - rationale supplied below
+    validations:
+      required: true
+  - type: dropdown
+    id: security_review
+    attributes:
+      label: Security or privacy impact
+      options:
+        - Yes - Agent 4 Security review required
+        - Unsure - Security review required to classify
+        - No - rationale supplied below
+    validations:
+      required: true
+  - type: dropdown
+    id: routing_review
+    attributes:
+      label: Routing or relay impact
+      options:
+        - Yes - Agent 3 Routing review required
+        - Unsure - Routing review required to classify
+        - No - rationale supplied below
+    validations:
+      required: true
+  - type: textarea
+    id: test_plan
+    attributes:
+      label: Vector and interoperability plan
+      description: Describe positive, negative, state, resource-bound, and independent implementation evidence.
+
