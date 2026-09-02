@@ -28,6 +28,9 @@ the protocol without copying an official application.
 - [`milestone-acceptance.md`](milestone-acceptance.md) — measurable evidence
   required at each gate.
 - [`risk-register.md`](risk-register.md) — active technical and project risks.
+- [`../security/README.md`](../security/README.md) — initial threat model,
+  candidate identity/channel/relay/discovery security architecture, and open
+  security gates.
 
 ## Authority boundaries
 

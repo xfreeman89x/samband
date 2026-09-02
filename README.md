@@ -58,8 +58,8 @@ service. Audio is ephemeral: missed voice is not replayed or persisted.
   boundaries, risks, milestones, and shared contracts.
 - [`docs/rfc/`](docs/rfc/README.md) governs protocol semantics.
 - [`docs/adr/`](docs/adr/README.md) records implementation architecture.
-- [`docs/security/`](docs/security/README.md) contains the security review
-  surface and, after Agent 4 review, the threat model.
+- [`docs/security/`](docs/security/README.md) contains the initial threat model,
+  candidate security architecture, and still-open review gates.
 - [`docs/research/`](docs/research/README.md) tracks questions that require
   experiments rather than assumptions.
 

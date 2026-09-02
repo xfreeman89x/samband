@@ -14,3 +14,10 @@ Every experiment should define:
 - result, raw non-sensitive evidence, and impact on RFC/ADR status.
 
 The initial queue is [`experiment-backlog.md`](experiment-backlog.md).
+
+## Active Wave 0 plans
+
+- [`Routing requirements and candidate evaluation`](routing-candidate-evaluation.md)
+  refines EXP-003 and EXP-004 into reproducible simulator scenarios, candidate
+  metadata requirements, metrics, and security/privacy questions. It records no
+  routing-family selection and no experimental result.

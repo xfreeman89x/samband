@@ -28,8 +28,53 @@ channel.
 
 ## Neighbor
 
-A node reachable over a current one-hop transport attachment. The eventual
-authentication and liveness rules remain protocol/security decisions.
+A peer reachable over a current one-hop transport attachment and admitted under
+the selected Samband peer-session profile. RFC-0001 distinguishes untrusted
+transport adjacency from authoritative neighbor/session state. Exact
+authentication, admission, and liveness rules remain Protocol/Security
+decisions.
+
+## Transport adjacency
+
+A live one-hop transport relationship before Samband peer-session admission. It
+is an untrusted input boundary and does not by itself create neighbor,
+capability, route, duplicate, channel, PTT, or media state.
+
+## Peer session
+
+The one-hop Samband context after exact experimental `(envelope format,
+protocol profile)` pair selection and the admission/security checks required by
+that protocol profile. The concrete authentication and identity binding remain
+Agent 4 work.
+
+## Discovery handle
+
+A short-lived, transport-visible value used only to correlate the minimum
+link-local discovery exchange needed to attempt a peer session. It is not a
+node identity, credential, routing origin, channel identifier, membership
+proof, or authorization result. Rotation and linkability rules remain under
+Agent 4 review.
+
+## Credential identity
+
+The identifier or public-key reference evaluated by a selected security
+profile. A credential identity is not automatically a human identity, display
+name, routing origin, channel identity, or authorization decision.
+
+## Authenticated principal
+
+The security-profile result naming the party whose credential or session key
+authenticated a particular claim or protected record. An immediate-peer
+principal authenticates only that peer's link/session claim unless another
+reviewed protocol explicitly proves delegation or end-origin authority.
+
+## Action subject
+
+The node, channel member, membership target, speaker, stream owner, or other
+entity about which an authenticated message requests a state change. The
+authenticated principal and action subject may differ only when the governing
+authorization rule explicitly permits it; equality must never be inferred from
+one ambiguous `actor` field.
 
 ## Transport
 
@@ -88,7 +133,27 @@ Possessing a human-visible channel label alone cannot establish membership.
 
 The forwardable Samband structure containing only protocol-approved metadata
 needed to validate, bound, classify, and route an opaque payload. Its fields and
-encoding are unresolved in RFC-0004.
+encoding are proposed but unresolved in RFC-0004.
+
+## Origin routing context
+
+An opaque routing/duplicate scope proposed by RFC-0004. It is not automatically
+a long-lived node identity, source route, channel identity, or human identity.
+Its stability, construction, binding, and privacy remain Routing/Security work.
+
+## Packet identity
+
+An opaque token assigned once to a forwarding instance and preserved across
+relays and transport copies. It supports mesh duplicate suppression only; it is
+scoped for that purpose by the exact envelope-format/protocol-profile pair and
+origin routing context. It is not proof of origin, operation identity,
+acknowledgement, ordering, or security replay protection.
+
+## Opaque endpoint payload
+
+Endpoint bytes carried unchanged by the relay layer and not parsed by relays.
+"Opaque" describes a protocol boundary, not a claim of encryption, anonymity,
+unlinkability, authentication, or metadata privacy.
 
 ## Protected / encrypted channel payload
 
@@ -96,27 +161,55 @@ Opaque endpoint content carried inside the relay envelope. The term "encrypted"
 must not be used as an implementation security claim until the construction,
 keys, authentication, and review status are stated.
 
+## Protected record
+
+One authenticated security-protocol record inside the opaque endpoint
+container, interpreted under an exact security profile and channel epoch. Its
+canonical associated context, sender/principal binding, replay identifier,
+recipient selection, and failure behavior remain RFC-0006 decisions.
+
+## Channel epoch
+
+A monotonically ordered channel-security state generation under a selected
+group-key protocol. It is not wall-clock time, hop limit, packet identity,
+capability generation, route revision, PTT request identity, stream identity,
+or media sequence. Epoch transition and partition behavior remain under
+security review.
+
 ## PTT
 
 Push-To-Talk: a primarily half-duplex interaction in which channel participants
 coordinate a current speaker. The distributed arbitration protocol is
 unresolved.
 
-## Traffic class
+## Traffic treatment / traffic class
 
 A protocol-visible category used to apply appropriate forwarding and freshness
-semantics. Exact classes and values are unresolved.
+semantics. RFC-0004 proposes the coarse Draft labels `BOUNDED_CONTROL` and
+`FRESH_MEDIA`; their need, visibility, values, and encoding remain under
+Routing/Security review.
 
 ## TTL / forwarding lifetime
 
 A bounded forwarding allowance preventing indefinite circulation. Whether the
 wire contract uses hop count, time, or another representation is unresolved.
+RFC-0004 proposes a v0.x hop-limit baseline in which local delivery is possible
+at one and forwarding decrements values greater than one.
 
 ## Duplicate suppression
 
 Bounded recognition and dropping of packets already processed within a defined
 window. This is distinct from cryptographic replay protection, though the two
 must be coordinated.
+
+## Security replay protection
+
+The security-profile mechanism and bounded state that reject reuse of an
+already authenticated protected record in its defined sender/channel/epoch
+domain. It is independent from outer duplicate suppression and from PTT or
+media freshness. Whether authenticated stale/replayed records consume state,
+and how crash or rollback recovery behaves, must be explicit in the selected
+security profile.
 
 ## Partition
 

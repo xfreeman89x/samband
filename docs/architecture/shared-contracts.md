@@ -24,16 +24,37 @@ Status meanings:
 | SC-004 | node, discovery, session, and human identity separation | RFC-0002 | Agent 1 Protocol, Agent 3 Routing, Agent 4 Security | Draft; blocked |
 | SC-005 | channel identity, authorization, membership change, and proof | RFC-0003 | Agent 1 Protocol, Agent 3 Routing for dissemination metadata, Agent 4 Security | Draft; blocked |
 | SC-006 | relay envelope fields, encoding, validation order, lifetime, and extensibility | RFC-0004 | Agent 1 Protocol, Agent 3 Routing, Agent 4 Security | Draft; blocked |
-| SC-007 | capabilities and their freshness/advertisement semantics | RFC-0001 plus future specification | Agent 1 Protocol, Agent 3 Routing, platform reviewers | Draft; blocked |
+| SC-007 | capabilities and their freshness/advertisement semantics | RFC-0001 plus future specification | Agent 1 Protocol, Agent 3 Routing, Agent 4 Security, platform reviewers | Draft; blocked |
 | SC-008 | route messages, metric model, convergence, loop behavior, and relay policy | RFC-0005 | Agent 3 Routing, Agent 1 Protocol, Agent 4 Security | Draft; blocked |
 | SC-009 | protected channel payload, key epochs, authentication, and replay | RFC-0006 | Agent 4 Security and Agent 1 Protocol | Draft; blocked |
 | SC-010 | distributed PTT state, conflict resolution, timeouts, and partitions | RFC-0007 | Agent 1 Protocol, Agent 3 Routing, Agent 4 Security | Draft; blocked |
 | SC-011 | audio framing, freshness, loss, codec negotiation, and stream lifecycle | RFC-0008 | Agent 1 Protocol, Agent 3 Routing, Agent 4 Security, later Audio review | Draft; blocked |
-| SC-012 | protocol versioning, negotiation, unknown fields/types, and error model | initial RFC set; specification pending | Agent 1 Protocol and Agent 4 Security | Not yet fully drafted; blocked |
-| SC-013 | canonical vector manifest, byte representation, negative outcomes, and version pinning | interoperability strategy | Agent 1 Protocol and Agent 9 Ecosystem | Architecture defined; format blocked |
-| SC-014 | safe observability vocabulary and redaction rules | system overview and security gates | Security plus relevant component owner | Architecture defined; schema blocked |
+| SC-012 | protocol versioning, negotiation, unknown fields/types, and error model | RFC-0004 plus Draft v0.x specification | Agent 1 Protocol and Agent 4 Security | Draft proposal; blocked |
+| SC-013 | canonical vector manifest, byte representation, negative outcomes, and version pinning | interoperability strategy plus Draft vector format | Agent 1 Protocol, Agent 4 for security-vector extensions, and Agent 9 Ecosystem | Draft format; security/Ecosystem review blocked |
+| SC-014 | safe observability vocabulary and redaction rules | system overview, threat model, and security gates | Security plus relevant component owner | Threat-model requirements defined; schema/review blocked |
 | SC-015 | portable-core language and FFI ownership/error boundary | ADR-0004 | Core, Android, iOS, Security | Proposed; experiment required |
 | SC-016 | native application stacks and lifecycle capability mapping | ADR-0005 | Android and iOS platform review | Proposed; experiment required |
+
+## Security review evidence
+
+The Wave 0 security documents refine requirements without superseding an RFC or
+changing a contract's status:
+
+- [`node-identity.md`](../security/node-identity.md) informs SC-004, SC-007, and
+  SC-012;
+- [`channel-security.md`](../security/channel-security.md) informs SC-005,
+  SC-009, SC-010, and SC-011;
+- [`relay-security.md`](../security/relay-security.md) informs SC-002, SC-006,
+  SC-007, and SC-008;
+- [`discovery-privacy.md`](../security/discovery-privacy.md) informs SC-004 and
+  the discovery portion of SC-012;
+- [`threat-model.md`](../security/threat-model.md) and
+  [`review-gates.md`](../security/review-gates.md) define the initial threat and
+  gate evidence across all security-sensitive contracts.
+
+This evidence records an initial Agent 4 review only. It selects no credential,
+session protocol, group-key construction, cipher suite, nonce rule, signature,
+or route-authentication mechanism, and it closes no security gate.
 
 ## Freeze gates
 

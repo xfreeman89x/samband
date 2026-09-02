@@ -1,0 +1,1812 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:samband:vector-set-schema:0.1-draft",
+  "title": "Samband draft canonical vector set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formatVersion",
+    "vectorSetId",
+    "status",
+    "envelopeFormat",
+    "protocolProfile",
+    "governingReferences",
+    "supersedes",
+    "vectors"
+  ],
+  "properties": {
+    "formatVersion": {
+      "const": "samband-vector-set/0.1-draft"
+    },
+    "vectorSetId": {
+      "type": "string",
+      "pattern": "^SP-VSET-[A-Z0-9][A-Z0-9._-]*$"
+    },
+    "status": {
+      "const": "draft"
+    },
+    "envelopeFormat": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "protocolProfile": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "governingReferences": {
+      "$ref": "#/$defs/references"
+    },
+    "supersedes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^SP-VSET-[A-Z0-9][A-Z0-9._-]*$"
+      }
+    },
+    "vectors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/vector"
+      }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document",
+        "section"
+      ],
+      "properties": {
+        "document": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "section": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "injectInputData": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    },
+    "syntheticBinaryDispositionData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "securityClaim"
+      ],
+      "properties": {
+        "disposition": {
+          "enum": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        },
+        "securityClaim": {
+          "const": false
+        }
+      }
+    },
+    "syntheticRoutingDispositionData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eligibleForLocalDelivery",
+        "eligibleForForwarding",
+        "egressAttachments",
+        "securityClaim"
+      ],
+      "properties": {
+        "eligibleForLocalDelivery": {
+          "type": "boolean"
+        },
+        "eligibleForForwarding": {
+          "type": "boolean"
+        },
+        "egressAttachments": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "securityClaim": {
+          "const": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "eligibleForForwarding": {
+                "const": true
+              }
+            },
+            "required": [
+              "eligibleForForwarding"
+            ]
+          },
+          "then": {
+            "properties": {
+              "egressAttachments": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "egressAttachments": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "syntheticChannelOpenData": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disposition",
+            "channelContext",
+            "authenticatedPrincipalContext",
+            "securityContext",
+            "plaintextExposed",
+            "securityClaim"
+          ],
+          "properties": {
+            "disposition": {
+              "const": "ACCEPTED"
+            },
+            "channelContext": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "authenticatedPrincipalContext": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "securityContext": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "plaintextExposed": {
+              "const": false
+            },
+            "securityClaim": {
+              "const": false
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disposition",
+            "plaintextExposed",
+            "securityClaim"
+          ],
+          "properties": {
+            "disposition": {
+              "const": "REJECTED"
+            },
+            "plaintextExposed": {
+              "const": false
+            },
+            "securityClaim": {
+              "const": false
+            }
+          }
+        }
+      ]
+    },
+    "syntheticInnerDecodeData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "innerFamily",
+        "innerType",
+        "disposition",
+        "securityClaim"
+      ],
+      "properties": {
+        "innerFamily": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "innerType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "disposition": {
+          "enum": [
+            "ACCEPTED",
+            "MALFORMED",
+            "UNSUPPORTED_MESSAGE",
+            "UNSUPPORTED_CRITICAL_EXTENSION"
+          ]
+        },
+        "securityClaim": {
+          "const": false
+        }
+      }
+    },
+    "duplicateKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelopeFormat",
+        "protocolProfile",
+        "originRoutingContext",
+        "packetIdentity"
+      ],
+      "properties": {
+        "envelopeFormat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "protocolProfile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "originRoutingContext": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "packetIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "duplicateCacheEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "expiresAtVirtualTime"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/duplicateKey"
+        },
+        "expiresAtVirtualTime": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "outerExtension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "critical",
+        "opaqueSemanticValue",
+        "opaqueSemanticValueLength"
+      ],
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "opaqueSemanticValue": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "opaqueSemanticValueLength": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "routingDirective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetKind",
+        "testOnly",
+        "declaredLengthBytes",
+        "opaqueTarget"
+      ],
+      "properties": {
+        "targetKind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "testOnly": {
+          "const": true
+        },
+        "declaredLengthBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "opaqueTarget": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "opaqueEndpointPacket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outerClass",
+        "envelopeFormat",
+        "protocolProfile",
+        "declaredFrameBytes",
+        "originRoutingContext",
+        "packetIdentity",
+        "routingDirective",
+        "hopLimit",
+        "trafficTreatment",
+        "extensions",
+        "opaquePayloadLength",
+        "opaquePayloadReference"
+      ],
+      "properties": {
+        "outerClass": {
+          "const": "OPAQUE_ENDPOINT"
+        },
+        "envelopeFormat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "protocolProfile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "declaredFrameBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "originRoutingContext": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "packetIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "routingDirective": {
+          "$ref": "#/$defs/routingDirective"
+        },
+        "hopLimit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trafficTreatment": {
+          "enum": [
+            "BOUNDED_CONTROL",
+            "FRESH_MEDIA"
+          ]
+        },
+        "extensions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/outerExtension"
+          }
+        },
+        "opaquePayloadLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "opaquePayloadReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "outerFixtureProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelopeFormat",
+        "protocolProfile",
+        "maximumFrameBytes",
+        "maximumOpaquePayloadBytes",
+        "maximumOuterExtensions",
+        "maximumOuterExtensionValueBytes",
+        "maximumRoutingDirectiveBytes",
+        "profileMaximumHopLimit",
+        "minimumDuplicateCapacity",
+        "configuredDuplicateCapacity",
+        "duplicateRetentionTicks",
+        "routingDirectiveRequiredForOpaqueEndpoint",
+        "maximumForwardingFanout",
+        "availableIngressPacketReservations",
+        "availableIngressByteReservations",
+        "availableLocalDispatchPacketReservations",
+        "availableLocalDispatchByteReservations",
+        "availableForwardingQueuePacketReservations",
+        "availableForwardingQueueByteReservations",
+        "reservationScope",
+        "egressPeerRelationship",
+        "routingTargetKind"
+      ],
+      "properties": {
+        "envelopeFormat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "protocolProfile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "maximumFrameBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maximumOpaquePayloadBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maximumOuterExtensions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maximumOuterExtensionValueBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maximumRoutingDirectiveBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "profileMaximumHopLimit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "minimumDuplicateCapacity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "configuredDuplicateCapacity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "duplicateRetentionTicks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "routingDirectiveRequiredForOpaqueEndpoint": {
+          "const": true
+        },
+        "maximumForwardingFanout": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "availableIngressPacketReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availableIngressByteReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availableLocalDispatchPacketReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availableLocalDispatchByteReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availableForwardingQueuePacketReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availableForwardingQueueByteReservations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reservationScope": {
+          "const": "synthetic.shared-across-traffic-treatments"
+        },
+        "egressPeerRelationship": {
+          "const": "synthetic.distinct-peer-sessions"
+        },
+        "routingTargetKind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "identifier",
+            "testOnly"
+          ],
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "testOnly": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "outerInitialState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fixtureProfile",
+        "ingressAttachment",
+        "duplicateKeys"
+      ],
+      "properties": {
+        "fixtureProfile": {
+          "$ref": "#/$defs/outerFixtureProfile"
+        },
+        "ingressAttachment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "duplicateKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/duplicateCacheEntry"
+          }
+        }
+      }
+    },
+    "outerEmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attachment",
+        "packet"
+      ],
+      "properties": {
+        "attachment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "packet": {
+          "$ref": "#/$defs/opaqueEndpointPacket"
+        }
+      }
+    },
+    "capabilityEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "critical",
+        "parameters"
+      ],
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "parameters": {
+          "type": "object",
+          "maxProperties": 64
+        }
+      }
+    },
+    "capabilityInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "peerSession",
+        "capabilitySnapshot"
+      ],
+      "properties": {
+        "peerSession": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "capabilitySnapshot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "generation",
+            "validFor",
+            "entries"
+          ],
+          "properties": {
+            "generation": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "validFor": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "entries": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/capabilityEntry"
+              }
+            }
+          }
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "action",
+        "data"
+      ],
+      "properties": {
+        "at": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "action": {
+          "enum": [
+            "injectInput",
+            "syntheticSessionAdmission",
+            "syntheticOuterAdmission",
+            "syntheticClaimAdmission",
+            "syntheticRoutingDisposition",
+            "syntheticChannelOpen",
+            "syntheticSecurityReplay",
+            "syntheticInnerDecode",
+            "syntheticActionAuthorization"
+          ]
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "injectInput"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/injectInputData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticSessionAdmission"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticBinaryDispositionData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticOuterAdmission"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticBinaryDispositionData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticClaimAdmission"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticBinaryDispositionData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticRoutingDisposition"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticRoutingDispositionData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticChannelOpen"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticChannelOpenData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticSecurityReplay"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticBinaryDispositionData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticInnerDecode"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticInnerDecodeData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "syntheticActionAuthorization"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/syntheticBinaryDispositionData"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "syntheticSessionAdmissionEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticSessionAdmission"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticOuterAdmissionEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticOuterAdmission"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticClaimAdmissionEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticClaimAdmission"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticRoutingDispositionEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticRoutingDisposition"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticChannelOpenEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticChannelOpen"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticSecurityReplayEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticSecurityReplay"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticInnerDecodeEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticInnerDecode"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "syntheticActionAuthorizationEvent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "syntheticActionAuthorization"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcomes",
+        "state",
+        "emissions",
+        "observations"
+      ],
+      "properties": {
+        "outcomes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/outcome"
+          }
+        },
+        "state": {
+          "type": "object"
+        },
+        "emissions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layer",
+        "result"
+      ],
+      "properties": {
+        "layer": {
+          "enum": [
+            "outer",
+            "session",
+            "capability",
+            "routing",
+            "channel-security",
+            "endpoint",
+            "channel",
+            "ptt",
+            "audio",
+            "wire",
+            "security",
+            "scenario"
+          ]
+        },
+        "result": {
+          "enum": [
+            "OUTER_DISPATCHED_LOCAL",
+            "OUTER_FORWARDED",
+            "OUTER_DISPATCHED_LOCAL_AND_FORWARDED",
+            "STATE_APPLIED",
+            "INNER_ACTION_APPLIED",
+            "IDEMPOTENT_NO_CHANGE",
+            "FRAME_TOO_LARGE",
+            "MALFORMED",
+            "UNSUPPORTED_ENVELOPE",
+            "UNSUPPORTED_PROFILE",
+            "UNSUPPORTED_CRITICAL_EXTENSION",
+            "UNSUPPORTED_MESSAGE",
+            "UNSUPPORTED_OUTER_SEMANTICS",
+            "SECURITY_REJECTED",
+            "LIFETIME_EXHAUSTED",
+            "DUPLICATE",
+            "PACKET_ID_CONFLICT",
+            "STALE",
+            "POLICY_REJECTED",
+            "NO_ROUTE",
+            "RESOURCE_LIMIT",
+            "STATE_CONFLICT"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "enum": [
+                  "OUTER_DISPATCHED_LOCAL",
+                  "OUTER_FORWARDED",
+                  "OUTER_DISPATCHED_LOCAL_AND_FORWARDED"
+                ]
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "layer": {
+                "const": "outer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "UNSUPPORTED_OUTER_SEMANTICS"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "layer": {
+                "const": "outer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "STATE_APPLIED"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "layer": {
+                "enum": [
+                  "session",
+                  "capability",
+                  "routing"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "INNER_ACTION_APPLIED"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "layer": {
+                "enum": [
+                  "channel",
+                  "ptt",
+                  "audio"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "resourceBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxStateEntriesAdded",
+        "maxPacketsEmitted",
+        "maxPayloadBytesMaterialized",
+        "notes"
+      ],
+      "properties": {
+        "maxStateEntriesAdded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxPacketsEmitted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxPayloadBytesMaterialized": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source",
+        "revision"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "hand-authored",
+            "generated"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "generator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "generated"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "generator"
+            ]
+          }
+        }
+      ]
+    },
+    "wire": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "representation",
+        "byteLength",
+        "bytes"
+      ],
+      "properties": {
+        "representation": {
+          "const": "lowercase-hex"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bytes": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{2})*$"
+        }
+      }
+    },
+    "vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "layer",
+        "classification",
+        "purpose",
+        "governingReferences",
+        "requiredFeatures",
+        "initialState",
+        "input",
+        "orderedEvents",
+        "expected",
+        "resourceBounds",
+        "provenance",
+        "supersedes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^SP-V0X-(OUTER|SESSION|CAP|ROUTE|CHSEC|ENDPOINT|CHANNEL|PTT|AUDIO|WIRE|SEC|SCEN)-[A-Z0-9][A-Z0-9._-]*-[0-9]{3}$"
+        },
+        "layer": {
+          "enum": [
+            "outer",
+            "session",
+            "capability",
+            "routing",
+            "channel-security",
+            "endpoint",
+            "channel",
+            "ptt",
+            "audio",
+            "wire",
+            "security",
+            "scenario"
+          ]
+        },
+        "classification": {
+          "enum": [
+            "positive",
+            "negative"
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "governingReferences": {
+          "$ref": "#/$defs/references"
+        },
+        "requiredFeatures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "synthetic-session-admission",
+              "synthetic-outer-admission",
+              "synthetic-claim-admission",
+              "synthetic-routing-disposition",
+              "synthetic-channel-open",
+              "synthetic-security-replay",
+              "synthetic-inner-decode",
+              "synthetic-action-authorization"
+            ]
+          }
+        },
+        "initialState": {
+          "type": "object"
+        },
+        "input": {
+          "type": "object"
+        },
+        "orderedEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "const": "injectInput"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        "expected": {
+          "$ref": "#/$defs/expected"
+        },
+        "resourceBounds": {
+          "$ref": "#/$defs/resourceBounds"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "wire": {
+          "$ref": "#/$defs/wire"
+        },
+        "supersedes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^SP-V0X-[A-Z0-9._-]+-[0-9]{3}$"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "layer": {
+                "const": "wire"
+              }
+            },
+            "required": [
+              "layer"
+            ]
+          },
+          "then": {
+            "required": [
+              "wire"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "layer": {
+                "not": {
+                  "const": "wire"
+                }
+              }
+            },
+            "required": [
+              "layer"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "wire"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "layer": {
+                "const": "outer"
+              }
+            },
+            "required": [
+              "layer"
+            ]
+          },
+          "then": {
+            "properties": {
+              "initialState": {
+                "$ref": "#/$defs/outerInitialState"
+              },
+              "expected": {
+                "properties": {
+                  "emissions": {
+                    "items": {
+                      "$ref": "#/$defs/outerEmission"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "layer": {
+                "const": "outer"
+              },
+              "input": {
+                "properties": {
+                  "outerClass": {
+                    "const": "OPAQUE_ENDPOINT"
+                  }
+                },
+                "required": [
+                  "outerClass"
+                ]
+              }
+            },
+            "required": [
+              "layer",
+              "input"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/opaqueEndpointPacket"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "layer": {
+                "const": "capability"
+              }
+            },
+            "required": [
+              "layer"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/capabilityInput"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticSessionAdmissionEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-session-admission"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-session-admission"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticSessionAdmissionEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticClaimAdmissionEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-claim-admission"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-claim-admission"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticClaimAdmissionEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticOuterAdmissionEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-outer-admission"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-outer-admission"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticOuterAdmissionEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticRoutingDispositionEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-routing-disposition"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-routing-disposition"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticRoutingDispositionEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticChannelOpenEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-channel-open"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-channel-open"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticChannelOpenEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticSecurityReplayEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-security-replay"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-security-replay"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticSecurityReplayEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticInnerDecodeEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-inner-decode"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-inner-decode"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticInnerDecodeEvent"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticActionAuthorizationEvent"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-action-authorization"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requiredFeatures": {
+                "contains": {
+                  "const": "synthetic-action-authorization"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "orderedEvents": {
+                "contains": {
+                  "$ref": "#/$defs/syntheticActionAuthorizationEvent"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
