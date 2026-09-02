@@ -22,13 +22,17 @@ security requirements, consists of:
 
 - [`spec/v0x-experimental.md`](spec/v0x-experimental.md), a cohesive Draft
   logical specification;
+- [`spec/v0x-simulation-profile.md`](spec/v0x-simulation-profile.md), the
+  bounded non-production Wave 1 simulation contract;
 - [`test-vectors/FORMAT.md`](test-vectors/FORMAT.md), the Draft canonical-vector
   carrier and outcome vocabulary;
 - [`compatibility/v0x-experimental.md`](compatibility/v0x-experimental.md), the
   exact pre-v1 profile/negotiation model.
 
-They remain non-normative and blocked on the reviews/evidence they list. The
-candidate security architecture is indexed in
+They remain non-normative. Only the subset explicitly named by the simulation
+profile is authorized for experimental implementation; every broader contract
+remains blocked on the reviews/evidence it lists. The candidate security
+architecture is indexed in
 [`../docs/security/README.md`](../docs/security/README.md). In particular, no
 wire encoding, routing algorithm, identity or cryptographic construction, PTT
 arbitration algorithm, or audio profile is selected.

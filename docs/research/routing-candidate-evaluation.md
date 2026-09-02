@@ -159,6 +159,16 @@ reachability/action state bound to one admitted immediate-peer session and one
 transport attachment. It is not a peer identity, a transferable session
 verdict, or proof of a reverse link.
 
+Wave 0 integration reconciles forwarding exclusion at this directional-link
+boundary. Peer-specific unicast never sends a copy immediately back to the
+exact ingress directional peer link. An exact candidate may use a different
+peer on the same attachment, or an explicit shared-medium emission that the
+ingress peer can also hear, only when it defines listener/reception behavior,
+fanout and work accounting, resource reservation, duplicate effects, and loop
+control. Eligibility of another link/session to the same logical peer remains
+profile-defined. This model selects neither a transport service nor a routing
+algorithm.
+
 A peer can be heard without being usable as a next hop. A route request's
 arrival path cannot be reversed unless the required reverse links are
 independently usable. Link loss, session close, and metric degradation are
@@ -220,12 +230,17 @@ prove claim age. A malicious relay can delay a never-before-seen claim and make
 a receiver start its full local window later. Forwarding an unchanged claim
 cannot increase its remaining validity, and repeated presentation of an
 identical revision cannot reset first-acceptance expiry. If bounded high-water
-or tombstone state is evicted, the same issuer/incarnation remains rejected. A
-new session can reset only a claim explicitly owned by and scoped to that
-immediate peer session. A multi-hop claim requires a newly authenticated
-incarnation of its original claim issuer; reconnecting an ingress peer cannot
-reset third-party freshness state. Otherwise the profile explicitly records
-and measures stale-resurrection as a residual risk.
+or tombstone state is evicted, the receiver cannot recognize the same
+issuer/incarnation forever without some other retained recognition state. Each
+exact candidate must therefore either retain bounded issuer/incarnation
+admission or quarantine state with deterministic saturation/eviction, require
+a fresh authenticated incarnation or eligible fresh session under a rule an
+old claim cannot satisfy, or explicitly admit and measure stale resurrection
+after eviction. A new session can reset only a claim explicitly owned by and
+scoped to that immediate peer session. A multi-hop claim requires a newly
+authenticated incarnation of its original claim issuer; reconnecting an
+ingress peer cannot reset third-party freshness state. No result may claim
+permanent stale rejection after all recognition state has been discarded.
 
 The one-hop session verdict never transfers across a relay. An independently
 origin-authenticated control claim can outlive one ingress session only within
@@ -677,7 +692,7 @@ validation under the same tuning rule.
 
 | Owner | Required follow-up from this analysis |
 | --- | --- |
-| Protocol | preserve separate attachment/session/link and identity domains; review target/control/freshness/duplicate semantics; reconcile the Draft ingress-attachment prohibition before any same-attachment or shared-medium experiment; define fanout accounting |
+| Protocol | preserve separate attachment/session/link and identity domains; review target/control/freshness/duplicate semantics; realize the Wave 0 peer-link-aware ingress/egress model in the Draft specification and vector format; define same-attachment/shared-medium listener and fanout accounting |
 | Security | define claim/target admission, outer mutable-field coverage, replay/freshness commits, privacy budgets, and local quota continuity without route-tracking identifiers |
 | Architect | narrow EXP-004's operating envelope and decide milestone thresholds from evidence |
 | Simulator | implement only an accepted or explicitly experimental profile; reuse the scenarios and expose bounded semantic metrics |

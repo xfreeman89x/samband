@@ -36,6 +36,13 @@ non-cryptographic dispositions to test protocol ordering; those fixtures MUST
 NOT be described as authentication, membership proof, encryption, or replay
 protection.
 
+The 2026-09-02 Wave 0 integration revision distinguishes attachment, admitted
+peer session, and directional peer link for forwarding; makes duplicate scope
+an exact-profile output rather than requiring one universal wire origin field;
+and qualifies peer-session churn separately from endpoint channel,
+arbitration, and security-context loss. These remain Draft semantics and do not
+authorize or accept a protocol profile.
+
 ## Architectural invariant
 
 ```text
@@ -74,7 +81,7 @@ The protocol keeps these contexts distinct:
 - discovery handle;
 - discovery/session exchange identity;
 - admitted peer-session context;
-- origin routing context;
+- optional profile-selected origin routing context;
 - forwarding packet identity;
 - routing target;
 - channel context, authenticated principal, action subject, and security context
@@ -86,8 +93,10 @@ The protocol keeps these contexts distinct:
 
 Equality in one domain does not establish equality in another. Packet identity
 is only a forwarding duplicate-correlation token scoped by the selected
-compatibility pair and origin routing context. It proves neither origin nor
-authenticity and is not security replay protection.
+compatibility pair and the duplicate scope supplied by that exact profile. A
+profile may derive that scope from an origin routing context, but a distinct
+wire origin field is not universally required. Packet identity proves neither
+origin nor authenticity and is not security replay protection.
 
 ## Version and exact-profile model
 
@@ -196,7 +205,7 @@ duplicate fields, or criticality:
 | protocol profile | exact pre-v1 semantic profile |
 | outer class/type | only routing-visible taxonomy above |
 | packet identity | mandatory immutable token for forwardable packets |
-| origin routing context | mandatory for forwardable packets; opaque duplicate/routing scope, not a node credential or source route |
+| origin routing context | optional profile-selected routing and duplicate-scope input; mandatory only for a profile that selects it; never implicitly a node credential or source route |
 | routing directive | profile-defined scope and optional opaque target; never generic next-hop/path fields |
 | hop limit | bounded unsigned forwarding-distance limit |
 | traffic treatment | at most a coarse, reviewed control/realtime hint; not authorization or guarantee |
@@ -219,8 +228,17 @@ until one exists, the draft makes no malicious-relay lifetime-enforcement
 claim. EXP-002 and EXP-018 must test these classifications rather than infer
 them from field placement.
 
-A forwardable packet missing either `origin routing context` or `packet
-identity` is `MALFORMED`.
+Every exact profile defines the inputs, equality, lifetime, rollover, and
+maximum representation of its profile-supplied duplicate scope. Those inputs
+may include a profile-required origin routing context, a profile-defined packet-
+identity namespace, or another reviewed value available consistently to every
+relay. Every relay processing the same forwarding instance under that profile
+must derive the same duplicate key. A forwardable packet missing `packet
+identity`, or any input that its selected profile requires to derive duplicate
+scope, is `MALFORMED`. Absence of a distinct origin routing context is not
+malformed when the profile does not define that field. The current Wave 1
+semantic fixture explicitly selects a synthetic origin-routing-context scope;
+that fixture choice is not a wire or general protocol requirement.
 
 Every selected routing target kind must define equality, stability/scope,
 local-delivery predicate, propagation/fanout, no-route behavior, whether local
@@ -293,11 +311,11 @@ this draft makes no adversarial enforcement claim.
 
 ## Packet duplicate behavior
 
-Every forwardable packet carries all scoped key components. The duplicate key
-is:
+Every forwardable packet carries packet identity and all profile-selected
+inputs needed to derive its duplicate scope. The duplicate key is:
 
 ```text
-(envelope format, protocol profile, origin routing context, packet identity)
+(envelope format, protocol profile, profile-supplied duplicate scope, packet identity)
 ```
 
 The origin assigns one packet identity and every transport retransmission,
@@ -322,10 +340,11 @@ The experimental first-seen policy is:
   capacities may improve availability but cannot change first-seen/retention
   semantics or retain more than their declared bound.
 
-Packet ID generation, collision/linkability, scope rollover, origin binding,
-post-admission no-effect insertion, partial fanout, overload, and numeric cache
-values remain joint Agent 1/3/4 decisions. Security replay operates
-independently even when a replayed operation has a new outer packet identity.
+Packet ID and duplicate-scope generation, collision/linkability, scope
+rollover/binding, post-admission no-effect insertion, partial fanout, overload,
+and numeric cache values remain joint Agent 1/3/4 decisions. Security replay
+operates independently even when a replayed operation has a new outer packet
+identity.
 
 ## Capability snapshots
 
@@ -395,14 +414,18 @@ authority is inferred from transport adjacency.
    Pre-admission anti-abuse counters can be bounded and non-authoritative only.
 6. **Duplicate lookup:** query bounded authoritative state.
 7. **Independent routing dispositions:** compute local eligibility and
-   forwarding eligibility independently; both can be true.
+   forwarding eligibility independently from the distinct ingress attachment,
+   admitted peer session, and directional peer link; both can be true.
+   Forwarding returns bounded profile-defined peer-unicast or shared-medium
+   egress actions, not attachment names alone.
 8. **Resource reservation:** reserve bounded duplicate/local/forward work.
 9. **Duplicate insertion:** commit before observable delivery/forward side
    effects.
 10. **Local and/or forwarding action:** locally pass opaque endpoint bytes to
-    the security boundary and/or emit preserved copies with decremented hop
-    limit. A routing-profile-derived control update is a new semantic packet
-    with a new packet identity; it cannot reset endpoint-data lifetime.
+    the security boundary and/or emit preserved peer-unicast/shared-medium
+    actions with decremented hop limit. A routing-profile-derived control update
+    is a new semantic packet with a new packet identity; it cannot reset
+    endpoint-data lifetime.
 11. **Bounded observability:** record safe local categories/metrics only.
 
 Stages 6 through 10 are atomic for one duplicate key. Each exact routing
@@ -479,6 +502,14 @@ EXP-008 model must define partition-local grant behavior, user presentation,
 merge recovery, authority, term/lease, tie-break, fairness, retry, and bounds.
 No missed audio is replayed after merge.
 
+Loss of one admitted one-hop peer session is a routing/link event, not by itself
+loss of the endpoint channel, arbitration context, or current grant. The exact
+profile defines bounded route recovery and the evidence that the required
+endpoint context remains usable. PTT teardown or recovery follows only when
+that recovery fails, the grant expires/is revoked, or its required channel,
+arbitration, or security context becomes invalid. Recovery never extends the
+grant.
+
 ## Audio boundary
 
 `STREAM_START` binds one stream identity and negotiated media profile to an
@@ -494,6 +525,13 @@ frames drop within bounded state. No media is retained across partition,
 reconnection, or suspension. Codec/profile, frame duration, sequence width,
 stale threshold, jitter, FEC/redundancy, and latency remain EXP-013 decisions.
 
+Peer-session churn, route loss, endpoint channel-session closure, arbitration-
+context invalidation, and protected-media security-context invalidation are
+distinct events. A selected profile may preserve only fresh media across a
+bounded alternate-route recovery interval; it pins queue/staleness bounds and
+the exact terminal event. Recovery cannot retain stale frames, extend a PTT
+grant, or replay media.
+
 ## Routing contract
 
 The selected routing profile consumes only admitted outer packets, admitted
@@ -507,9 +545,14 @@ fanout, no-route, capability withdrawal, loop/convergence, partition/merge,
 numeric resource limits, and observability. No algorithm or target is selected
 in `draft/v0.x`.
 
-For one ingress processing event, no forwarding copy of that instance is
-emitted on the event's ingress transport attachment. Whether another attachment
-to the same peer/session is eligible remains profile-defined.
+Each ingress event identifies its attachment, admitted peer session, and exact
+directional peer link separately. A peer-unicast egress action MUST NOT target
+the exact ingress directional peer link. An exact routing profile MAY emit to a
+different admitted peer link on the same attachment or use a shared-medium
+action that the ingress peer can hear, but it must pin listener eligibility,
+maximum recipient fanout, packet/byte/work accounting, duplicate effects, and
+loop behavior. Attachment identity alone cannot decide eligibility. Whether
+another link/session to the same peer is eligible remains profile-defined.
 
 Relay withdrawal has three distinct effects: local policy withdrawal
 immediately stops accepting new transit work; a direct neighbor applies an
@@ -609,7 +652,8 @@ material and make no compatibility or security claim.
 
 - wire encoding, field widths/order/codes, canonicalization, and frame maxima;
 - concrete profile identifiers and numeric limits;
-- packet ID/origin/target constructions and security binding;
+- packet ID/profile-supplied duplicate scope/origin/target constructions and
+  security binding;
 - routing target, algorithm, metrics, control catalog, convergence, and queues;
 - identity credentials, authentication/signatures, channel membership, payload
   protection, replay, epochs, and metadata mitigations;

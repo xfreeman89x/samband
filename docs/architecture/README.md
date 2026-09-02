@@ -10,9 +10,11 @@ the protocol without copying an official application.
 2. [`network-model.md`](network-model.md) — the shared mesh/private channel
    separation and node roles.
 3. [`glossary.md`](glossary.md) — canonical terminology.
-4. [`component-model.md`](component-model.md) — responsibilities and boundaries.
-5. [`dependency-graph.md`](dependency-graph.md) — permitted dependency direction.
-6. [`shared-contracts.md`](shared-contracts.md) — contracts, owners, review gates,
+4. [`identity-domains.md`](identity-domains.md) — identity scopes, audiences,
+   lifetimes, linkability, and non-transferability rules.
+5. [`component-model.md`](component-model.md) — responsibilities and boundaries.
+6. [`dependency-graph.md`](dependency-graph.md) — permitted dependency direction.
+7. [`shared-contracts.md`](shared-contracts.md) — contracts, owners, review gates,
    and current readiness.
 
 ## Development architecture
@@ -28,6 +30,8 @@ the protocol without copying an official application.
 - [`milestone-acceptance.md`](milestone-acceptance.md) — measurable evidence
   required at each gate.
 - [`risk-register.md`](risk-register.md) — active technical and project risks.
+- [`wave0-integration-review.md`](wave0-integration-review.md) — Protocol,
+  Routing, and Security reconciliation plus the bounded Wave 1 authorization.
 - [`../security/README.md`](../security/README.md) — initial threat model,
   candidate identity/channel/relay/discovery security architecture, and open
   security gates.

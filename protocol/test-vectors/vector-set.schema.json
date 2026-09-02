@@ -106,13 +106,137 @@
         }
       }
     },
+    "listenerPeerLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "peerSession",
+        "directionalPeerLink"
+      ],
+      "properties": {
+        "peerSession": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "directionalPeerLink": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "peerUnicastEgressAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionKind",
+        "attachment",
+        "peerSession",
+        "directionalPeerLink",
+        "fanoutUnits",
+        "workUnits",
+        "duplicateAccounting",
+        "loopAccounting"
+      ],
+      "properties": {
+        "actionKind": {
+          "const": "PEER_UNICAST"
+        },
+        "attachment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "peerSession": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "directionalPeerLink": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "fanoutUnits": {
+          "const": 1
+        },
+        "workUnits": {
+          "const": 1
+        },
+        "duplicateAccounting": {
+          "const": "synthetic.per-reception-duplicate-key-v1"
+        },
+        "loopAccounting": {
+          "const": "synthetic.common-hop-limit-plus-candidate-v1"
+        }
+      }
+    },
+    "sharedMediumEgressAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionKind",
+        "attachment",
+        "listenerPeerLinks",
+        "fanoutUnits",
+        "workUnits",
+        "duplicateAccounting",
+        "loopAccounting"
+      ],
+      "properties": {
+        "actionKind": {
+          "const": "SHARED_MEDIUM"
+        },
+        "attachment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "listenerPeerLinks": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/listenerPeerLink"
+          }
+        },
+        "fanoutUnits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "workUnits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "duplicateAccounting": {
+          "const": "synthetic.per-reception-duplicate-key-v1"
+        },
+        "loopAccounting": {
+          "const": "synthetic.common-hop-limit-plus-candidate-v1"
+        }
+      }
+    },
+    "egressAction": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/peerUnicastEgressAction"
+        },
+        {
+          "$ref": "#/$defs/sharedMediumEgressAction"
+        }
+      ]
+    },
     "syntheticRoutingDispositionData": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "eligibleForLocalDelivery",
         "eligibleForForwarding",
-        "egressAttachments",
+        "egressActions",
         "securityClaim"
       ],
       "properties": {
@@ -122,14 +246,12 @@
         "eligibleForForwarding": {
           "type": "boolean"
         },
-        "egressAttachments": {
+        "egressActions": {
           "type": "array",
           "uniqueItems": true,
           "maxItems": 64,
           "items": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 128
+            "$ref": "#/$defs/egressAction"
           }
         },
         "securityClaim": {
@@ -150,14 +272,14 @@
           },
           "then": {
             "properties": {
-              "egressAttachments": {
+              "egressActions": {
                 "minItems": 1
               }
             }
           },
           "else": {
             "properties": {
-              "egressAttachments": {
+              "egressActions": {
                 "maxItems": 0
               }
             }
@@ -266,7 +388,7 @@
       "required": [
         "envelopeFormat",
         "protocolProfile",
-        "originRoutingContext",
+        "profileDuplicateScope",
         "packetIdentity"
       ],
       "properties": {
@@ -280,7 +402,7 @@
           "minLength": 1,
           "maxLength": 128
         },
-        "originRoutingContext": {
+        "profileDuplicateScope": {
           "type": "string",
           "minLength": 1,
           "maxLength": 128
@@ -457,8 +579,11 @@
         "minimumDuplicateCapacity",
         "configuredDuplicateCapacity",
         "duplicateRetentionTicks",
+        "duplicateScopeSource",
+        "originRoutingContextRequired",
         "routingDirectiveRequiredForOpaqueEndpoint",
         "maximumForwardingFanout",
+        "maximumEgressWorkUnits",
         "availableIngressPacketReservations",
         "availableIngressByteReservations",
         "availableLocalDispatchPacketReservations",
@@ -466,7 +591,8 @@
         "availableForwardingQueuePacketReservations",
         "availableForwardingQueueByteReservations",
         "reservationScope",
-        "egressPeerRelationship",
+        "egressActionModel",
+        "sharedMediumListenerAccounting",
         "routingTargetKind"
       ],
       "properties": {
@@ -516,10 +642,20 @@
           "type": "integer",
           "minimum": 1
         },
+        "duplicateScopeSource": {
+          "const": "synthetic.origin-routing-context-v1"
+        },
+        "originRoutingContextRequired": {
+          "const": true
+        },
         "routingDirectiveRequiredForOpaqueEndpoint": {
           "const": true
         },
         "maximumForwardingFanout": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maximumEgressWorkUnits": {
           "type": "integer",
           "minimum": 1
         },
@@ -550,8 +686,11 @@
         "reservationScope": {
           "const": "synthetic.shared-across-traffic-treatments"
         },
-        "egressPeerRelationship": {
-          "const": "synthetic.distinct-peer-sessions"
+        "egressActionModel": {
+          "const": "synthetic.directional-peer-link-and-shared-medium-v1"
+        },
+        "sharedMediumListenerAccounting": {
+          "const": "synthetic.explicit-directional-peer-link-list-v1"
         },
         "routingTargetKind": {
           "type": "object",
@@ -579,6 +718,8 @@
       "required": [
         "fixtureProfile",
         "ingressAttachment",
+        "ingressPeerSession",
+        "ingressDirectionalPeerLink",
         "duplicateKeys"
       ],
       "properties": {
@@ -586,6 +727,16 @@
           "$ref": "#/$defs/outerFixtureProfile"
         },
         "ingressAttachment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "ingressPeerSession": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "ingressDirectionalPeerLink": {
           "type": "string",
           "minLength": 1,
           "maxLength": 128
@@ -603,14 +754,12 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "attachment",
+        "action",
         "packet"
       ],
       "properties": {
-        "attachment": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
+        "action": {
+          "$ref": "#/$defs/egressAction"
         },
         "packet": {
           "$ref": "#/$defs/opaqueEndpointPacket"

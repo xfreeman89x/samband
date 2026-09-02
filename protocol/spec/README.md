@@ -9,7 +9,13 @@ set. It makes the layering, logical envelope, processing, message, capability,
 PTT/audio boundary, and vector contracts reviewable without selecting routing,
 cryptography, or wire encoding. Candidate security designs remain separate in
 [`../../docs/security/`](../../docs/security/README.md). The synthesis is not
-implementation-ready, normative, or a compatibility/security claim.
+normative or a compatibility/security claim.
+
+The strictly smaller
+[`v0x-simulation-profile.md`](v0x-simulation-profile.md) is an explicitly
+authorized experimental contract for deterministic Wave 1 simulation and a
+narrow core prototype. It selects no production wire, security, routing, PTT,
+or audio profile, and passing it is simulated-runtime evidence only.
 
 Future specification work must cover, at minimum:
 

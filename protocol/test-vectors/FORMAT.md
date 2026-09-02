@@ -131,8 +131,11 @@ in its packet input:
 | `minimumDuplicateCapacity` | `4` |
 | `configuredDuplicateCapacity` | `8` |
 | `duplicateRetentionTicks` | `100` |
+| `duplicateScopeSource` | `synthetic.origin-routing-context-v1` |
+| `originRoutingContextRequired` | `true` |
 | `routingDirectiveRequiredForOpaqueEndpoint` | `true` |
 | `maximumForwardingFanout` | `2` |
+| `maximumEgressWorkUnits` | `2` |
 | `availableIngressPacketReservations` | `1` |
 | `availableIngressByteReservations` | `128` |
 | `availableLocalDispatchPacketReservations` | `1` |
@@ -140,47 +143,69 @@ in its packet input:
 | `availableForwardingQueuePacketReservations` | `2` |
 | `availableForwardingQueueByteReservations` | `256` |
 | `reservationScope` | `synthetic.shared-across-traffic-treatments` |
-| `egressPeerRelationship` | `synthetic.distinct-peer-sessions` |
+| `egressActionModel` | `synthetic.directional-peer-link-and-shared-medium-v1` |
+| `sharedMediumListenerAccounting` | `synthetic.explicit-directional-peer-link-list-v1` |
 | `routingTargetKind.identifier` | `synthetic.test-opaque-target` |
 | `routingTargetKind.testOnly` | `true` |
 
-Each such case also names `initialState.ingressAttachment`. If its input reaches
-routing, `routingDirective.targetKind` is
+Each such case also names the distinct
+`initialState.ingressAttachment`, `initialState.ingressPeerSession`, and
+`initialState.ingressDirectionalPeerLink`. If its input reaches routing,
+`routingDirective.targetKind` is
 `synthetic.test-opaque-target`, `routingDirective.testOnly` is `true`, and the
-opaque target is fixture data. Any emitted attachment differs from the ingress
-attachment. Every `OPAQUE_ENDPOINT` fixture input carries that structurally
-valid routing directive even when a later extension or duplicate stage rejects
-the packet. Field presence never depends on a later processing disposition.
+opaque target is fixture data. A peer-unicast action never targets the exact
+ingress directional peer link. The fixture permits a different admitted peer
+link on the same attachment and a shared-medium action whose explicit listener
+set may include the ingress peer. Every `OPAQUE_ENDPOINT` fixture input carries
+that structurally valid routing directive even when a later extension or
+duplicate stage rejects the packet. Field presence never depends on a later
+processing disposition.
 All fixture strings used in byte-bounded members are printable ASCII, and each
 case supplies its declared frame, payload, extension-value, and routing-
 directive lengths. These are semantic fixture counters, not a Samband wire
 encoding or measured serialization.
 
 Reservation members are currently available units at case start, distinct from
-configured maxima. Packet reservations count whole logical packets; byte
-reservations count the fixture-declared whole frame. They are one synthetic
-pool shared across traffic treatments. Each selected egress belongs to a peer
-session distinct from the ingress peer, consumes one forwarding packet
-reservation plus its declared frame bytes, and cannot exceed
-`maximumForwardingFanout`. Local dispatch similarly consumes one packet and its
-declared frame bytes. Every illustrative success fits wholly; no partial-fanout
-or enqueue-failure policy is selected. These limits close stage-1/stage-8
-fixtures without selecting an Agent 3 target model, route, metric, queue, or
-fanout policy.
+configured maxima. Packet reservations count whole logical emitted packets;
+byte reservations count the fixture-declared whole frame once per egress
+action. They are one synthetic pool shared across traffic treatments. Every
+egress action declares positive `fanoutUnits` and `workUnits`. Peer unicast has
+one explicit peer session/directional link and one fanout unit. A shared-medium
+action declares the complete fixture listener set as admitted peer-session/
+directional-peer-link pairs; its fanout units equal that set's size, while its
+work units account for the single medium emission. Receiver-side processing is
+charged when each resulting receipt enters the common ingress pipeline. The sum
+of fanout units cannot exceed
+`maximumForwardingFanout`, and the sum of work units cannot exceed
+`maximumEgressWorkUnits`. `duplicateAccounting` pins duplicate lookup per
+resulting receiver occurrence: one for peer unicast and one for each declared
+shared-medium listener. `loopAccounting` pins the common hop-limit/duplicate
+checks while leaving any additional candidate-specific loop control explicit in
+that candidate profile.
+Local dispatch similarly consumes one packet and its declared frame bytes.
+Every illustrative success fits wholly; no partial-fanout or enqueue-failure
+policy is selected. These limits close stage-1/stage-8 fixtures without
+selecting an Agent 3 target model, route, metric, queue, or fanout policy.
 
 Outer duplicate keys use one object with exactly these four members:
-`envelopeFormat`, `protocolProfile`, `originRoutingContext`, and
+`envelopeFormat`, `protocolProfile`, `profileDuplicateScope`, and
 `packetIdentity`. The same object shape is used for retained entries, lookup
 observations, and additions. It is a semantic tuple, not a delimiter-joined
-string or a selected wire encoding; hop limit is never part of the key.
+string or a selected wire encoding; hop limit is never part of the key. This
+fixture sets `duplicateScopeSource` to
+`synthetic.origin-routing-context-v1`, requires an input
+`originRoutingContext`, and maps that value unchanged to
+`profileDuplicateScope`. Another exact profile may derive duplicate scope from
+different reviewed inputs and need no distinct wire origin field.
 
 Each expected outer emission is an exact object of the form
-`{ "attachment": ..., "packet": { ... } }`. `packet` repeats every logical
-input field, including one synthetic opaque-payload reference, with only the
-profile-permitted hop-limit change. Emission arrays follow the exact order of
-the synthetic routing disposition's `egressAttachments`. Exact here means
-logical object equality, not wire-byte equality; EXP-002 must later prove byte
-preservation for immutable fields and unknown optional extensions.
+`{ "action": { ... }, "packet": { ... } }`. `action` repeats the complete
+profile-defined peer-unicast or shared-medium egress action. `packet` repeats
+every logical input field, including one synthetic opaque-payload reference,
+with only the profile-permitted hop-limit change. Emission arrays follow the
+exact order of the synthetic routing disposition's `egressActions`. Exact here
+means logical object equality, not wire-byte equality; EXP-002 must later prove
+byte preservation for immutable fields and unknown optional extensions.
 
 These labels and numbers exist only to make semantic fixtures closed and
 deterministic. They are not assigned wire values, do not define a real routing
@@ -244,7 +269,7 @@ authentication, authorization, confidentiality, or integrity:
 | `synthetic-session-admission` | `syntheticSessionAdmission` | supply an admitted/rejected peer-session disposition |
 | `synthetic-outer-admission` | `syntheticOuterAdmission` | supply the future outer security/admission hook result |
 | `synthetic-claim-admission` | `syntheticClaimAdmission` | supply routing/capability claim-authority and security-freshness admission independently from immediate-peer/outer admission |
-| `synthetic-routing-disposition` | `syntheticRoutingDisposition` | supply local-delivery eligibility and selected egress attachments |
+| `synthetic-routing-disposition` | `syntheticRoutingDisposition` | supply local-delivery eligibility and selected bounded egress actions |
 | `synthetic-channel-open` | `syntheticChannelOpen` | supply the future protected-container validation/open result and provisional fixture channel/authenticated-principal/security contexts; it does not expose inner plaintext by itself |
 | `synthetic-security-replay` | `syntheticSecurityReplay` | supply the future security-replay result separately from channel open; never media/application freshness |
 | `synthetic-inner-decode` | `syntheticInnerDecode` | expose fixture-only decoded inner semantics after open and replay admission |
@@ -258,10 +283,13 @@ Event `data` objects have no unspecified members. Their Draft contracts are:
   `securityClaim: false`; synthetic claim acceptance says only that the fixture
   may continue to semantic generation/revision checks and does not make a
   route, metric, or capability truthful;
-- routing disposition: bounded unique `egressAttachments`, independent boolean
+- routing disposition: bounded unique `egressActions`, independent boolean
   `eligibleForLocalDelivery` and `eligibleForForwarding`, and
-  `securityClaim: false`; forwarding `true` requires at least one egress and
-  `false` requires none;
+  `securityClaim: false`; forwarding `true` requires at least one action and
+  `false` requires none. Each action names its attachment and explicit
+  fanout/work/duplicate/loop accounting; peer unicast names its one admitted
+  listener peer session and directional peer link, while shared-medium names a
+  bounded listener set of those pairs;
 - channel open: `disposition`, `plaintextExposed: false`, and
   `securityClaim: false`; `ACCEPTED` additionally returns bounded provisional
   `channelContext`, `authenticatedPrincipalContext`, and `securityContext`,
@@ -423,6 +451,10 @@ Routing/simulator cases include an explicit protocol/routing profile, seed,
 topology, node capabilities, virtual clock, ordered link/policy events, injected
 packets, expected semantic event log, and metric/state high-water bounds.
 Host performance measurements remain separate and cannot alter correctness.
+Ingress and egress topology state distinguishes attachment, admitted peer
+session, and directional peer link. Shared-medium cases enumerate fixture
+listener peer links and assert recipient-fanout, work, duplicate-receipt, and
+loop bounds.
 
 ## Security vectors
 

@@ -15,6 +15,9 @@ illustrative [`draft-v0x-core.json`](draft-v0x-core.json). Agent 4 has added the
 requirements for a later construction-specific security-vector schema; no real
 cryptographic vector or profile exists. Agent 9 review is still required.
 `draft` sets can change and cannot support conformance or security claims.
+The carrier's logical directional-link and shared-medium actions support only
+the bounded [`wave1-sim-v0.1`](../spec/v0x-simulation-profile.md) experiment;
+they do not select a physical transport or production wire representation.
 
 Rules:
 

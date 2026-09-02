@@ -114,9 +114,12 @@ principal, stream owner, grant, channel epoch, and current stream state.
    PTT `RELEASE` and cannot close a newer/different stream.
 7. Duplicate/reordered start/end operations are idempotent under their inner
    identities and cannot extend freshness or grant validity.
-8. Missing `STREAM_END`, route loss, grant expiry, session loss, or suspension
-   closes the stream through bounded local expiry. No audio is retained for
-   later completion or playback.
+8. Missing `STREAM_END`, grant expiry, loss/expiry of the bound channel,
+   arbitration, or security context, route recovery failure, or suspension
+   closes the stream through bounded local expiry. Loss of one peer session is
+   a routing event and does not by itself close the stream while bounded
+   profile-defined recovery preserves the required endpoint context. No audio
+   is retained for later completion or playback.
 
 The codec/profile catalog, frame duration, bitrate, aggregation, sequence width
 and wrap, media clock, flags, optional FEC/redundancy, and stream timeout remain
@@ -212,6 +215,13 @@ partition or reconnection. Agent 3 must review whether the coarse visible
 realtime treatment is sufficient and prevent control starvation under media
 load.
 
+Peer-session churn, route loss, endpoint channel-session closure, arbitration-
+context invalidation, and protected-media security-context invalidation are
+distinct events. A selected profile must define the bounded route-recovery
+interval during which fresh media may continue over an alternate admitted path,
+the queue/staleness limits during that interval, and the exact terminal event.
+Recovery cannot extend the PTT grant, retain stale frames, or replay media.
+
 ## Alternatives to evaluate
 
 | Alternative | Benefits | Costs/risks | Evidence needed |
@@ -244,9 +254,12 @@ replay, and authorization verdicts are named synthetic non-production inputs.
 
 Each v0.x media profile is exact and pinned by the endpoint protocol profile.
 Unknown profiles fail locally after the reviewed security boundary; relays do
-not transcode or translate. A profile/session/grant change terminates affected
-streams and drops queued/stale media. It never reinterprets frames under another
-codec/security profile or stores them for later migration. Negotiation downgrade
+not transcode or translate. An endpoint protocol/media-profile change, endpoint
+channel-session closure, loss of the required arbitration/security context
+after bounded profile-defined recovery, or grant invalidation terminates
+affected streams and drops queued/stale media. Loss of one peer session alone
+is only a routing event. No transition reinterprets frames under another codec/
+security profile or stores them for later migration. Negotiation downgrade
 protection remains Agent 4-owned.
 
 ## Measurements required
@@ -265,6 +278,8 @@ method. Simulator results cannot substitute for physical audio measurements.
 - How are timestamp clocks mapped without global synchronization?
 - What safe diagnostics permit audio debugging without retaining voice?
 - How do mobile suspension and route changes terminate or resume streams?
+- What bounded alternate-route recovery survives peer-session churn without
+  extending grant validity or retaining stale media?
 
 ## Review requirements
 
@@ -297,6 +312,10 @@ method. Simulator results cannot substitute for physical audio measurements.
   use, kept SFrame metadata inside the opaque boundary by default, and expanded
   non-persistence to runtime/platform artifacts. No media security construction
   or audio implementation was selected.
+- 2026-09-02: Wave 0 integration review distinguished peer-session churn from
+  loss of endpoint channel/arbitration/security context and required bounded,
+  freshness-preserving route recovery before stream teardown. No recovery,
+  media, routing, or security profile was selected; RFC remains Draft.
 
 ## References
 

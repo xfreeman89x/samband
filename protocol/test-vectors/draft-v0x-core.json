@@ -44,8 +44,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -53,13 +56,16 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": []
       },
       "input": {
@@ -96,7 +102,7 @@
           "data": {
             "eligibleForLocalDelivery": true,
             "eligibleForForwarding": false,
-            "egressAttachments": [],
+            "egressActions": [],
             "securityClaim": false
           }
         },
@@ -118,7 +124,7 @@
             {
               "envelopeFormat": "draft/semantic-envelope",
               "protocolProfile": "draft/v0.x",
-              "originRoutingContext": "origin-a",
+              "profileDuplicateScope": "origin-a",
               "packetIdentity": "packet-001"
             }
           ]
@@ -148,7 +154,7 @@
       "id": "SP-V0X-OUTER-HOP-FORWARD-002",
       "layer": "outer",
       "classification": "positive",
-      "purpose": "A forwardable packet at hop limit two emits one preserved copy at hop limit one.",
+      "purpose": "A forwardable packet at hop limit two emits one preserved copy to a different peer link on the ingress attachment at hop limit one.",
       "governingReferences": [
         {
           "document": "docs/rfc/RFC-0004-relay-envelope.md",
@@ -172,8 +178,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -181,13 +190,16 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": []
       },
       "input": {
@@ -224,8 +236,17 @@
           "data": {
             "eligibleForLocalDelivery": false,
             "eligibleForForwarding": true,
-            "egressAttachments": [
-              "link-b"
+            "egressActions": [
+              {
+                "actionKind": "PEER_UNICAST",
+                "attachment": "link-in",
+                "peerSession": "session-other",
+                "directionalPeerLink": "peer-link-other",
+                "fanoutUnits": 1,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
             ],
             "securityClaim": false
           }
@@ -248,14 +269,23 @@
             {
               "envelopeFormat": "draft/semantic-envelope",
               "protocolProfile": "draft/v0.x",
-              "originRoutingContext": "origin-a",
+              "profileDuplicateScope": "origin-a",
               "packetIdentity": "packet-002"
             }
           ]
         },
         "emissions": [
           {
-            "attachment": "link-b",
+            "action": {
+              "actionKind": "PEER_UNICAST",
+              "attachment": "link-in",
+              "peerSession": "session-other",
+              "directionalPeerLink": "peer-link-other",
+              "fanoutUnits": 1,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
             "packet": {
               "outerClass": "OPAQUE_ENDPOINT",
               "envelopeFormat": "draft/semantic-envelope",
@@ -278,7 +308,8 @@
           }
         ],
         "observations": [
-          "Packet identity remains unchanged across the relay."
+          "Packet identity remains unchanged across the relay.",
+          "A different directional peer link on the ingress attachment is eligible under the pinned fixture action model."
         ]
       },
       "resourceBounds": {
@@ -323,8 +354,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -332,19 +366,22 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": [
           {
             "key": {
               "envelopeFormat": "draft/semantic-envelope",
               "protocolProfile": "draft/v0.x",
-              "originRoutingContext": "origin-a",
+              "profileDuplicateScope": "origin-a",
               "packetIdentity": "packet-003"
             },
             "expiresAtVirtualTime": 100
@@ -396,7 +433,7 @@
           "duplicateKey": {
             "envelopeFormat": "draft/semantic-envelope",
             "protocolProfile": "draft/v0.x",
-            "originRoutingContext": "origin-a",
+            "profileDuplicateScope": "origin-a",
             "packetIdentity": "packet-003"
           },
           "expiresAtVirtualTime": 100,
@@ -450,8 +487,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -459,13 +499,16 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": []
       },
       "input": {
@@ -509,8 +552,17 @@
           "data": {
             "eligibleForLocalDelivery": false,
             "eligibleForForwarding": true,
-            "egressAttachments": [
-              "link-b"
+            "egressActions": [
+              {
+                "actionKind": "PEER_UNICAST",
+                "attachment": "link-b",
+                "peerSession": "session-b",
+                "directionalPeerLink": "peer-link-b",
+                "fanoutUnits": 1,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
             ],
             "securityClaim": false
           }
@@ -533,14 +585,23 @@
             {
               "envelopeFormat": "draft/semantic-envelope",
               "protocolProfile": "draft/v0.x",
-              "originRoutingContext": "origin-a",
+              "profileDuplicateScope": "origin-a",
               "packetIdentity": "packet-004"
             }
           ]
         },
         "emissions": [
           {
-            "attachment": "link-b",
+            "action": {
+              "actionKind": "PEER_UNICAST",
+              "attachment": "link-b",
+              "peerSession": "session-b",
+              "directionalPeerLink": "peer-link-b",
+              "fanoutUnits": 1,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
             "packet": {
               "outerClass": "OPAQUE_ENDPOINT",
               "envelopeFormat": "draft/semantic-envelope",
@@ -613,8 +674,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -622,13 +686,16 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": []
       },
       "input": {
@@ -1492,7 +1559,7 @@
       "id": "SP-V0X-OUTER-UNKNOWN-INNER-FORWARD-006",
       "layer": "outer",
       "classification": "positive",
-      "purpose": "A combined endpoint and relay forwards an eligible opaque payload even when its local endpoint does not support the inner type.",
+      "purpose": "A combined endpoint and relay uses a profile-pinned shared-medium action while its local endpoint rejects an unsupported inner type.",
       "governingReferences": [
         {
           "document": "docs/rfc/RFC-0001-samband-network-model.md",
@@ -1523,8 +1590,11 @@
           "minimumDuplicateCapacity": 4,
           "configuredDuplicateCapacity": 8,
           "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
           "routingDirectiveRequiredForOpaqueEndpoint": true,
           "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
           "availableIngressPacketReservations": 1,
           "availableIngressByteReservations": 128,
           "availableLocalDispatchPacketReservations": 1,
@@ -1532,13 +1602,16 @@
           "availableForwardingQueuePacketReservations": 2,
           "availableForwardingQueueByteReservations": 256,
           "reservationScope": "synthetic.shared-across-traffic-treatments",
-          "egressPeerRelationship": "synthetic.distinct-peer-sessions",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
           "routingTargetKind": {
             "identifier": "synthetic.test-opaque-target",
             "testOnly": true
           }
         },
         "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
         "duplicateKeys": []
       },
       "input": {
@@ -1575,8 +1648,25 @@
           "data": {
             "eligibleForLocalDelivery": true,
             "eligibleForForwarding": true,
-            "egressAttachments": [
-              "link-c"
+            "egressActions": [
+              {
+                "actionKind": "SHARED_MEDIUM",
+                "attachment": "link-in",
+                "listenerPeerLinks": [
+                  {
+                    "peerSession": "session-in",
+                    "directionalPeerLink": "peer-link-in"
+                  },
+                  {
+                    "peerSession": "session-c",
+                    "directionalPeerLink": "peer-link-c"
+                  }
+                ],
+                "fanoutUnits": 2,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
             ],
             "securityClaim": false
           }
@@ -1633,7 +1723,7 @@
             {
               "envelopeFormat": "draft/semantic-envelope",
               "protocolProfile": "draft/v0.x",
-              "originRoutingContext": "origin-a",
+              "profileDuplicateScope": "origin-a",
               "packetIdentity": "packet-006"
             }
           ],
@@ -1641,7 +1731,24 @@
         },
         "emissions": [
           {
-            "attachment": "link-c",
+            "action": {
+              "actionKind": "SHARED_MEDIUM",
+              "attachment": "link-in",
+              "listenerPeerLinks": [
+                {
+                  "peerSession": "session-in",
+                  "directionalPeerLink": "peer-link-in"
+                },
+                {
+                  "peerSession": "session-c",
+                  "directionalPeerLink": "peer-link-c"
+                }
+              ],
+              "fanoutUnits": 2,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
             "packet": {
               "outerClass": "OPAQUE_ENDPOINT",
               "envelopeFormat": "draft/semantic-envelope",

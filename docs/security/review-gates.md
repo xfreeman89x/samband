@@ -51,6 +51,8 @@ Document creation does not close a gate. Current evidence state is:
 ## Claim policy
 
 Until SG-001 through the relevant gate are complete, documentation and UI use
-precise phrases such as "design target" or "protected synthetic payload" and do
-not claim reviewed end-to-end encryption, anonymity, unlinkability, forward
-secrecy, or post-compromise security.
+precise phrases such as "design target" or "designed for endpoint-only protected
+payloads" and do not claim reviewed end-to-end encryption, anonymity,
+unlinkability, forward secrecy, or post-compromise security. The
+`wave1-sim-v0.1` `OpaqueEndpointPayload` is only unparsed fixture data and must
+not be described as protected, encrypted, authenticated, or replay-safe.

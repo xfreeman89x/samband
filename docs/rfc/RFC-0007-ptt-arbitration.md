@@ -92,10 +92,10 @@ selecting who grants the floor or how contenders are ordered:
 | --- | --- | --- |
 | `IDLE` | no current local request or accepted grant | local press -> `REQUESTING`; accepted grant to another -> `RECEIVING` |
 | `REQUESTING` | one bounded local request is pending | matching accepted grant -> `TRANSMIT_GRANTED`; matching busy/release/cancel/expiry -> `IDLE`; other accepted grant -> `RECEIVING` |
-| `TRANSMIT_GRANTED` | one accepted unexpired grant names the local action subject | local release/grant expiry/revocation/session loss -> `RELEASING` or `RECOVERING`; newer accepted conflicting decision -> profile-defined recovery |
+| `TRANSMIT_GRANTED` | one accepted unexpired grant names the local action subject | local release, grant expiry/revocation, or loss/expiry of the profile-defined channel or arbitration context required by the grant -> `RELEASING` or `RECOVERING`; newer accepted conflicting decision -> profile-defined recovery |
 | `RECEIVING` | an accepted grant names another action subject in the local connected view | matching release/expiry -> `IDLE`; conflict/merge -> `RECOVERING` |
 | `RELEASING` | the local node has emitted an idempotent release/cancel | accepted completion or bounded timeout -> `IDLE` |
-| `RECOVERING` | ownership is stale, conflicting, or lacks required session state | selected arbitration recovery completes -> `IDLE`, `RECEIVING`, or `TRANSMIT_GRANTED` |
+| `RECOVERING` | ownership is stale, conflicting, or lacks required endpoint channel/arbitration/security context after bounded profile-defined recovery | selected arbitration recovery completes -> `IDLE`, `RECEIVING`, or `TRANSMIT_GRANTED` |
 
 Only `TRANSMIT_GRANTED` permits a local audio stream start. A request, timeout,
 silence, media packet, optimistic UI, or locally guessed owner never creates a
@@ -200,6 +200,15 @@ how route loss affects a pending request/current grant, and which bounded
 control retries are permitted. RFC-0004 hop limit is not a grant lifetime, and
 routing duplicate suppression is not PTT idempotence or security replay.
 
+Loss or replacement of one RFC-0001 admitted peer session is a routing/link
+event, not by itself loss of the endpoint channel, arbitration context, or PTT
+grant. The selected profile must define a bounded recovery interval and the
+evidence that the required endpoint context remains reachable. Only when that
+recovery fails, or the channel/arbitration/security context itself becomes
+invalid, may peer-session churn contribute to a PTT teardown or recovery
+transition. This rule does not guarantee route survival or extend grant
+validity.
+
 ## Alternatives to evaluate
 
 | Alternative | Benefits | Costs/risks | Evidence needed |
@@ -250,10 +259,13 @@ and principal/subject/channel contexts are synthetic non-production inputs.
 
 Each v0.x arbitration model is an exact endpoint profile. Endpoints do not mix
 request/grant/term semantics across profiles or infer compatibility from message
-names. Profile/session change expires pending requests, grants, and recovery
-state according to an explicit bounded rule; it never replays missed audio or
-converts an optimistic/partition-local state into a confirmed grant. Security-
-critical negotiation/downgrade behavior remains Agent 4-owned.
+names. An endpoint protocol-profile change, endpoint channel-session closure,
+loss of the required arbitration/security context after bounded profile-defined
+recovery, or grant invalidation expires affected requests, grants, and recovery
+state according to an explicit bounded rule. Loss of one peer session alone is
+only a routing event. No transition replays missed audio or converts an
+optimistic/partition-local state into a confirmed grant. Security-critical
+negotiation/downgrade behavior remains Agent 4-owned.
 
 ## Open questions
 
@@ -264,6 +276,8 @@ critical negotiation/downgrade behavior remains Agent 4-owned.
 - Which party grants the floor in a fully decentralized channel?
 - How are conflicting owners resolved after merge without replaying audio?
 - What abuse controls are enforceable against an authorized malicious member?
+- Which bounded route-recovery evidence keeps a channel/arbitration context
+  usable across peer-session churn, and which exact failure invalidates it?
 
 ## Review requirements
 
@@ -294,6 +308,10 @@ critical negotiation/downgrade behavior remains Agent 4-owned.
   and grant subjects, required revision-bound action authorization and distinct
   replay consumption, and documented malicious-member/privacy limits. No PTT
   authority or security construction was selected.
+- 2026-09-02: Wave 0 integration review distinguished one-hop peer-session
+  churn from endpoint channel/arbitration-context invalidation. Exact bounded
+  recovery and teardown behavior remains an experimental profile decision; RFC
+  remains Draft.
 
 ## References
 

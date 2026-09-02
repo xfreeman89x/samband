@@ -26,14 +26,65 @@ or ADR and preserve failed results.
 | EXP-018 | Which outer-envelope and routing-control admission model safely supports malicious community relays? | compare hop-by-hop-only and scoped origin-authenticated models across each exact candidate; field coverage/pair binding; session-derived versus wire issuer; issuer/subject/target authority; revision/incarnation, delayed first presentation, same-incarnation tombstone eviction, destination-sequence jump/reset, restart; reactive widening; forged origin/target/metric/withdrawal/selector/two-hop state; admitted duplicate-verification and Sybil floods; hop reset, blackhole/selective forwarding/wormhole; gateway address/sinkhole and tree branch/subscriber separation; safe quota degradation, bytes/CPU/linkability | Security + Routing + Protocol + Simulator | RFC-0004/0005/SG-004/SG-005 |
 | EXP-019 | How can nonce, replay, epoch, and credential state survive crash or rollback safely? | forced restart/rollback at every send-counter, replay-window, membership-commit, and key-rotation boundary; compare persist-before-use and mandatory-rekey/rejoin recovery; prove no key/nonce reuse or replay resurrection; quantify secure-storage writes, latency, energy, state bounds, backup/clone behavior, and old-state erasure limits | Security + Core + Platforms + Protocol | RFC-0002/0003/0006/SG-002/SG-003/SG-006 |
 
+## Dependency graph
+
+The table above remains authoritative for each experiment's question, evidence,
+owner/review, and decision gate. This table adds only dependency edges,
+simulator responsibility, and the decision made possible by the evidence; it
+does not create duplicate experiments.
+
+| ID | Prerequisites and ordering | Simulator role | Decision unlocked |
+| --- | --- | --- | --- |
+| EXP-001 | authorized v0.x experimental simulation profile and a narrow portable-core boundary proposal | consume the same candidate core API as a physical adapter and exercise ownership, cancellation, errors, and deterministic hooks | accept, revise, or reject ADR-0004's Rust shared-core boundary |
+| EXP-002 | RFC-0004 logical envelope/processing contract, field-scope inventory, and Draft vector carrier | replay semantic/negative corpus and later inject exact encoded bounded frames; host CPU/allocation measures remain separate | select an experimental envelope format, canonical wire corpus, and exact compatibility-pair representation for RFC-0004 |
+| EXP-003 | EXP-004 before result-bearing runs; exact candidate manifests; EXP-015/016 policies frozen or explicitly factorial; EXP-005/007/018 evidence required before final selection | primary paired held-out runner for routing candidates, target models, safety gates, and metrics | propose an RFC-0005 experimental routing profile without silently selecting a family in advance |
+| EXP-004 | authorized simulation profile, topology/traffic schema, and documented trace or generator inputs | generate/ingest immutable exogenous traces, validate seeds/manifests, and distinguish supported from stress cases | preregister EXP-003 thresholds and candidate-independent Protocol v0 operating assumptions |
+| EXP-005 | reconciled identity domains and candidate discovery/session/origin/target scopes; consume EXP-017 inputs when testing a real session binding | drive rotation, reconnect, restart, partition, simultaneous-transport, and lower-layer-change traces | constrain RFC-0002 discovery/session/routing bindings and EXP-003/007 identity lifetimes |
+| EXP-006 | RFC-0003/0006 protected semantic boundary, threat model, and reviewed non-secret artifact rules | model deterministic membership/epoch/partition event order with synthetic verdicts; cryptographic measurements run outside the simulator | select or reject a standard group-security profile and inform SG-003/006 |
+| EXP-007 | relay-visible field inventory plus preregistered candidate field manifests from the applicable routing, identity, channel, PTT, and media experiments | produce observer-specific traces and measure audience/linkage plus padding, batching, or cover-traffic cost proxies | approve, remove, or further scope relay-visible metadata across RFC-0001/0004 through RFC-0008 |
+| EXP-008 | routing delivery/partition evidence from EXP-003, channel authority inputs from EXP-006, and an authorized synthetic security interface | primary deterministic concurrency, loss, partition, merge, fairness, and latency runner | propose an RFC-0007 experimental PTT arbitration profile |
+| EXP-009 | ADR-0003 transport boundary and one bounded experimental compatibility/frame profile with an explicitly provisional frame bound | consume resulting directional contact/lifecycle traces later; never substitute for physical Android evidence | decide Android direct/relay feasibility and unblock the relevant ADR-0005/M3 scope |
+| EXP-010 | ADR-0003 transport boundary and one bounded experimental compatibility/frame profile with an explicitly provisional frame bound | consume resulting directional contact/lifecycle traces later; never substitute for physical iOS evidence | decide iOS discovery/direct/background/relay feasibility and unblock the relevant ADR-0005/M6 scope |
+| EXP-011 | successful compatible subsets from EXP-009 and EXP-010 using the same exact experimental pair | provide common conformance scenarios only; physical cross-platform exchange is decisive | establish or reject a viable Android-iOS direct transport path for M6 planning |
+| EXP-012 | EXP-003 relay workloads/policy candidates and physical transport/lifecycle evidence from EXP-009/010 as applicable | pre-screen bounded abuse/load scenarios and ingest measured resource traces; never claim battery results | set safe community-relay resource policy and inform M4/M7 hardening |
+| EXP-013 | generic protected relay milestone, EXP-003 routing loss/reordering evidence, EXP-008 PTT profile, and reviewed RFC-0006 inputs | run freshness, deadline, loss, reordering, and bounded queue cases before physical audio measurement | propose RFC-0008 media settings and the M5 latency/loss policy |
+| EXP-014 | EXP-002 encoding candidates plus candidate physical-transport MTU/fragment evidence from EXP-009/010/011 when available | model fragmentation loss amplification, bounded buffering, and backpressure with declared transport profiles | set experimental frame/payload maxima for RFC-0004 and transport profiles |
+| EXP-015 | RFC-0001 capability lifecycle candidate, authorized simulation profile, and explicit lifecycle/link traces; later consume EXP-009/010 physical traces | primary snapshot/delta, loss, reordering, expiry, withdrawal, flap, session-loss, and saturation runner | select capability freshness/withdrawal semantics for RFC-0001/0005 |
+| EXP-016 | RFC-0004 ordered pipeline and duplicate domains, reconciled peer-link/shared-medium action model, and a bounded atomic resource ledger | primary adversarial ordering, no-effect/partial-action, verification-work, retention, and `N`/`N+1` runner | select packet-duplicate admission and commit semantics for RFC-0004/0005 |
+| EXP-017 | RFC-0002 session/transcript requirements and EXP-002 canonicalization/framing inputs, or a pinned provisional experiment carrier for preliminary comparison | reproduce loss, reorder, retry, simultaneous initiation, reconnect, restart, and rollback event sequences; cryptographic implementation remains isolated | select a complete peer-session profile and inform RFC-0002/0004 plus SG-002/004 |
+| EXP-018 | exact routing candidates from EXP-003 preregistration, EXP-002 field scopes, EXP-005/007 identity/privacy inputs, EXP-016 duplicate policy, and an authorized synthetic claim-admission interface | primary cross-candidate malicious-claim, Sybil, rushing, hop-reset, blackhole, selective-forwarding, and wormhole runner | select or reject outer/control claim-admission models and provide SG-004/005 hard-gate evidence |
+| EXP-019 | candidate peer/group/protected-record profiles from EXP-006/017 and an explicit persistence/rollback state model | schedule deterministic crash/restore points and compare semantic recovery; platform secure-storage measurements remain decisive | define rollback-safe recovery for RFC-0002/0003/0006 and inform SG-002/003/006 |
+
+Routing evaluation scenarios that overlap these experiments consume their
+frozen profiles and evidence rather than rerunning a second experiment. In
+particular, RTE-012 consumes EXP-016, RTE-014 and RTE-021 consume EXP-018,
+RTE-015 consumes EXP-015, RTE-017 consumes EXP-005/007, and RTE-006 consumes
+the applicable EXP-018/019 freshness and rollback rules. EXP-003 uses those
+cases as common safety gates or factorial inputs under its own preregistered
+comparison; it does not create new answers to the underlying experiment
+questions.
+
 ## Priority order
 
-Wave 0 should begin with EXP-002 through EXP-008 and EXP-015 through EXP-019 as
-scoped design evidence and planning, while implementation agents remain
-blocked. EXP-017 and EXP-019 remain tiny, isolated, non-production security
-construction experiments after their exact hypotheses and artifact rules are
-reviewed. EXP-018 remains a bounded design/adversarial simulator plan and can
-run only after an exact experimental routing/security profile is authorized.
-EXP-001 and simulator implementation follow only when required shared
-contracts authorize an experimental profile. Mobile and audio experiments
-follow the roadmap gates.
+After the Samband v0.x Experimental Simulation Profile exists, Wave 1 begins
+with the parameterized simulator/core boundary, EXP-001's narrow-core work, and
+EXP-004 preregistration. Harness construction and pilot trace validation may
+proceed in parallel, but no result-bearing EXP-003 comparison starts until
+EXP-004 has frozen the operating envelope, thresholds, seeds, and held-out
+inputs.
+
+EXP-005/007 identity and metadata work and EXP-015/016 capability/duplicate
+work proceed in parallel and supply frozen policies or declared factorial
+dimensions to the exact routing candidate manifests. EXP-002 and EXP-017 may
+continue as isolated non-production protocol/security experiments without
+making simulator semantics depend on a final wire encoding or production
+cryptography.
+
+EXP-003 then compares the preregistered simple candidates. EXP-018 runs only
+after exact routing and synthetic claim-admission profiles exist and is a hard
+gate before any routing-profile selection; it does not award a security score
+for omitting a feature. A hybrid is evaluated only if simpler candidates miss
+an explicit preregistered threshold. EXP-006 and EXP-019 remain isolated
+security work at their stated prerequisites. Physical mobile, relay-energy,
+cross-platform, and audio experiments follow EXP-009 through EXP-014 and their
+roadmap gates; simulation never substitutes for their physical evidence.

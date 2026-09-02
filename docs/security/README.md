@@ -17,6 +17,12 @@ Agent 4's initial review set is:
   relay limits, metadata budget, and resource controls;
 - [`review-gates.md`](review-gates.md) — active gates and review status.
 
+The authoritative semantic separation of identity roles is in
+[`../architecture/identity-domains.md`](../architecture/identity-domains.md).
+The [`Wave 0 Integration Review`](../architecture/wave0-integration-review.md)
+maps every open SG gate to the affected contracts and experiments; it closes no
+gate and authorizes no production security behavior.
+
 These documents make the security problem precise but deliberately do not
 select credentials, primitives, suites, encodings, routing algorithms, group
 policy, or production libraries. Key lifecycle is currently covered in the

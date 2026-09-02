@@ -893,6 +893,18 @@ Run:
     Agent 3 Routing
     Agent 5 Simulator
 
+Continue in parallel for scoped review and experiments:
+
+    Agent 4 Security
+
+Wave 1 implements only the non-production
+[`wave1-sim-v0.1`](../../protocol/spec/v0x-simulation-profile.md) contract.
+Exact responsibilities and blockers are defined by the
+[`Wave 0 Integration Review`](../architecture/wave0-integration-review.md).
+Synthetic admissions always carry `securityClaim: false`; this wave does not
+select a wire encoding, production routing algorithm, credential, cryptographic
+construction, PTT arbitration, or media profile.
+
 Target:
 
 ```text

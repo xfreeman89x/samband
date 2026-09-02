@@ -196,21 +196,27 @@ emission. One physical or logical attachment can serve several neighbors, so a
 realistic candidate must distinguish the exact ingress peer link from the
 attachment that carried it.
 
-This is a proposed Protocol requirement, not current profile permission. The
-current Draft v0.x spec and vector format still prohibit every egress action on
-the ingress attachment. Until Agent 1 reconciles that restriction, any
-executable experimental profile follows it. A future accepted peer-link-aware
-contract may permit a different peer on the same attachment or a shared-medium
-emission only with exact action, accounting, duplicate, and loop semantics.
+Wave 0 reconciliation makes this a peer-link-aware Draft protocol boundary,
+not an attachment-wide prohibition and not a routing-algorithm selection. For
+each forwarding action:
 
-Every forwarding action preserves all RFC-0004 immutable envelope semantics
-and applies only the required hop-limit decrement. Under such a future
-contract, a peer-specific unicast action MUST NOT send the copy immediately
-back to the exact ingress peer link. Whether another link/session to the same
-peer is eligible would be an exact routing-profile decision. A shared-medium
-emission can be heard by the ingress peer; its eligibility, fanout/work
-accounting, duplicate effect, and loop control must be explicit rather than
-assuming the sender can exclude that listener. Further loop prevention belongs
+- a peer-specific unicast action MUST NOT send the copy immediately back to the
+  exact ingress directional peer link;
+- an exact candidate profile MAY select a different admitted peer link on the
+  same attachment when the transport service can address that peer separately;
+- eligibility of another link or session to the same logical peer remains an
+  exact profile decision; and
+- an exact candidate profile MAY select a shared-medium emission on the ingress
+  attachment, but it cannot assume that the ingress peer is excluded from the
+  listener set.
+
+Every profile that permits same-attachment or shared-medium forwarding must
+define the action representation, listener and reception model, fanout and
+work accounting, duplicate effects, resource reservation, and loop controls.
+It must distinguish one physical emission from its zero or more resulting
+receptions rather than silently charging or suppressing either. Every
+forwarding action preserves all RFC-0004 immutable envelope semantics and
+applies only the required hop-limit decrement. Further loop prevention belongs
 to the selected profile.
 
 A result must be bounded by the profile's maximum fanout and queues. `NO_ROUTE`,
@@ -344,12 +350,24 @@ does not prove the claim's age. A malicious relay can delay a never-before-seen
 claim and cause a receiver to start its full window later. Forwarding an
 unchanged claim cannot increase its remaining validity, and an identical
 revision cannot reset first-acceptance expiry. If bounded high-water or
-tombstone state is evicted, the same issuer/incarnation remains rejected. A new
-session can reset only a claim explicitly owned by and scoped to that immediate
-peer session. A multi-hop claim requires a newly authenticated incarnation of
-its original claim issuer; reconnecting an ingress peer cannot reset third-
-party freshness state. Otherwise the profile explicitly records and measures
-stale-resurrection as a residual risk.
+tombstone state is evicted, a receiver cannot claim that it will recognize and
+reject the same issuer/incarnation forever after discarding every recognition
+record. Each exact profile must instead choose and bound one explicit policy:
+
+- retain issuer/incarnation admission or quarantine state for a declared
+  finite horizon, with deterministic saturation and eviction behavior;
+- require a fresh authenticated incarnation or, for an immediately owned
+  session-scoped claim, a fresh admitted session under a rule an old claim
+  cannot satisfy; or
+- admit the possibility of stale resurrection after eviction and measure its
+  window, influence, and recovery as residual risk.
+
+A new session can reset only a claim explicitly owned by and scoped to that
+immediate peer session. A multi-hop claim requires a newly authenticated
+incarnation of its original claim issuer; reconnecting an ingress peer cannot
+reset third-party freshness state. No profile may claim permanent stale
+rejection after all state capable of recognizing the old incarnation has been
+evicted.
 
 If a candidate uses destination-owned sequence/freshness separately from an
 advertiser's own claim revision, it defines who may originate, advance, copy,
@@ -602,16 +620,19 @@ security properties.
 Semantic vectors must define ordered inputs and expected dispositions without
 map iteration order or wall-clock sleeps. Required cases include direct
 delivery at hop 1, forward 2-to-1, combined local/forward, the current Draft
-rule that every emitted attachment differs from ingress, bounded fanout,
-no-route, duplicate paths, capability withdrawal,
+peer-link-aware rule that peer-unicast never bounces to the exact ingress
+directional link, a different peer on the same attachment, profile-defined
+handling of another link/session to the same logical peer, and a shared-medium
+emission whose listener, fanout, work, duplicate, reservation, and loop effects
+are explicit. They also include bounded fanout, no-route, duplicate paths,
+capability withdrawal,
 partition/merge without media replay, stale revisions, invalid metrics,
 unsupported routing profile/type, and every state/cache/queue limit.
 
-If Protocol review accepts a peer-link-aware action model, the spec and format
-must first add explicit ingress/egress peer-link and shared-medium vocabulary;
-then vectors add no bounce to the exact ingress peer link, a different peer on
-the same attachment, and shared-medium listener/accounting cases. RFC-0005
-cannot independently change the current vector contract.
+The specification and vector format must represent explicit ingress/egress
+directional peer-link and shared-medium action vocabulary before these cases
+are executable. RFC-0005 defines the reconciled logical requirement but cannot
+independently change the vector carrier or select a transport service model.
 
 Scenario vectors follow the draft format in
 [`../../protocol/test-vectors/FORMAT.md`](../../protocol/test-vectors/FORMAT.md).
@@ -671,9 +692,10 @@ pair/vector-set pin.
   evidence.
 - [x] Agent 1's 2026-09-01 routing-facing envelope, processing, message,
   version, and vector-boundary review recorded.
-- [ ] Agent 1 review of this revision's proposed directional peer-link/shared-
-  medium action model, target identity, route freshness, and candidate control
-  requirements, including reconciliation with the Draft spec/vector format.
+- [x] Wave 0 integration reconciliation of the directional peer-link/shared-
+  medium action model recorded without selecting a routing algorithm.
+- [ ] Agent 1 realization review of the reconciled action model in the Draft
+  specification, vector format, and first exact experimental profile.
 - [x] Agent 4 initial poisoning, identity/admission, metric provenance,
   malicious-relay, metadata, Sybil, partition, and DoS requirements recorded.
 - [ ] Agent 4 review of the selected routing profile and SG-005 closure.
@@ -706,6 +728,11 @@ pair/vector-set pin.
   constraints, route-freshness and resource requirements, and a discriminating
   simulator plan. No routing algorithm, target kind, metric, numeric bound, or
   security construction was selected, and no simulator experiment was run.
+- 2026-09-02: Wave 0 integration reconciled forwarding exclusion at the exact
+  ingress directional peer-link rather than the whole attachment, while
+  requiring explicit same-attachment/shared-medium listener, accounting,
+  duplicate, resource, and loop semantics. RFC remains Draft and no routing
+  algorithm or transport service model was selected.
 
 ## References
 

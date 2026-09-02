@@ -20,8 +20,9 @@ superseded_by: null
 ## Summary
 
 This RFC proposes the logical Samband v0.x outer envelope, exact experimental
-profile negotiation, processing order, hop lifetime, packet identity, duplicate
-handling, unknown extension/type behavior, and routing/security interfaces.
+profile negotiation, processing order, hop lifetime, packet identity,
+profile-supplied duplicate scope, duplicate handling, unknown extension/type
+behavior, and routing/security interfaces.
 
 The envelope separates minimal routing-visible state from an opaque endpoint
 payload. The proposal intentionally does not select bytes, a schema language,
@@ -80,9 +81,11 @@ bounded outer fields.
 processing, routing, and limit semantics.
 
 **Packet identity** is an opaque forwarding duplicate-correlation token scoped
-by the selected compatibility pair and an origin routing context. It is not
-proof of identity, authenticity, authorization, collision resistance, or
-security replay protection.
+by the selected compatibility pair and the duplicate scope defined by that
+exact protocol profile. A profile may derive that scope from an origin routing
+context, but a distinct wire-visible origin context is not a common-envelope
+requirement. Packet identity is not proof of identity, authenticity,
+authorization, collision resistance, or security replay protection.
 
 **Hop limit** is the proposed Protocol v0.x TTL semantic: an
 origin-selected, inclusive forwarding-distance/path-hop budget, not a count of
@@ -100,13 +103,23 @@ presence is class/profile-dependent.
 | protocol profile | peer and multi-hop semantics | exact pre-v1 profile match; no numeric compatibility inference |
 | outer class/type | link control, mesh control, or opaque endpoint data | registry from RFC-0001; unknown forwarding semantics fail closed |
 | packet identity | forwarding duplicate correlation | mandatory and immutable for forwardable packets |
-| origin routing context | scopes packet identity and routing origin | opaque; not a long-lived node credential or source route |
+| origin routing context | optional profile-selected routing and duplicate-scope input | present and mandatory only when the exact profile selects it; opaque and not a long-lived node credential or source route |
 | routing directive | local-delivery/forwarding input | optional profile-defined scope plus opaque target; never a next-hop or path list |
 | hop limit | origin-selected forwarding-distance limit | mandatory for forwardable packets; inclusive path-budget semantics below |
 | traffic treatment | untrusted bounded control or freshness-oriented scheduling hint | coarse profile registry; not authorization, inner-type proof, or delivery guarantee |
 | payload length | bound opaque payload parsing/allocation | must agree exactly with framing |
 | extensions | bounded evolution surface | every extension declares critical or optional handling |
 | payload | outer control body or opaque endpoint container | `OPAQUE_ENDPOINT` bytes are preserved; known control bodies are processed only under their selected profile |
+
+Every exact profile defines the inputs, equality, lifetime, rollover, and
+maximum representation of its **profile-supplied duplicate scope**. The scope
+may be derived from a profile-required origin routing context, a profile-
+defined packet-identity namespace, or another reviewed input available
+consistently to every relay; this RFC does not select among them. Every relay
+processing the same forwarding instance under that profile must derive the same
+duplicate key. Absence of a profile-required scope input is `MALFORMED`;
+absence of a distinct origin routing context is not malformed when the profile
+does not define that field.
 
 `LINK_CONTROL` packets are never forwarded and do not carry a mesh routing
 directive. `MESH_CONTROL` packets use only types and propagation rules selected
@@ -300,11 +313,14 @@ bound the target operating envelope.
 
 ## Packet identity and duplicate suppression
 
-Every forwardable packet MUST contain an origin routing context and packet
-identity. Absence of either is `MALFORMED`. The duplicate key is the tuple:
+Every forwardable packet MUST contain a packet identity and every exact profile
+MUST supply a bounded duplicate scope from its profile-defined inputs. Absence
+of packet identity or any input that the selected profile requires to derive
+that scope is `MALFORMED`. A distinct origin routing context is mandatory only
+for a profile that selects it. The duplicate key is the tuple:
 
 ```text
-(envelope format, protocol profile, origin routing context, packet identity)
+(envelope format, protocol profile, profile-supplied duplicate scope, packet identity)
 ```
 
 The origin assigns the packet identity. All transport retransmissions,
@@ -313,10 +329,10 @@ for the same forwarding instance. Routing revisions, capability generations,
 channel operations, PTT requests/grants, streams, and media sequence numbers
 use separate identifiers.
 
-Packet identity generation, width, entropy/counter construction, collision
-risk, restart/session rollover, origin binding, and linkability require joint
-Agent 3/Agent 4 review. Packet identity alone grants no trust and cannot satisfy
-cryptographic replay protection.
+Packet identity and duplicate-scope generation, width, entropy/counter
+construction, collision risk, restart/session rollover, binding, and
+linkability require joint Agent 3/Agent 4 review. Packet identity alone grants
+no trust and cannot satisfy cryptographic replay protection.
 
 Candidate generation strategies remain unselected:
 
@@ -388,21 +404,31 @@ cannot mutate authoritative protocol state.
    packet ID cannot poison the authoritative cache.
 7. **Independent dispositions** — compute `eligibleForLocalDelivery` and
    `eligibleForForwarding` separately from approved outer metadata, current
-   routing state, hop limit, relay capability, and local policy. Both can be
-   true. Inner-payload readability is not a relay predicate.
+   routing state, hop limit, relay capability, local policy, and the distinct
+   ingress attachment, admitted peer session, and directional peer link. Both
+   can be true. Inner-payload readability is not a relay predicate. Forwarding
+   returns a bounded set of profile-defined peer-unicast or shared-medium
+   egress actions, not attachment names alone.
 8. **Resource reservation** — reserve bounded duplicate, local-dispatch, and/or
    forwarding work. Failure cannot grow state and yields a local drop reason.
 9. **Duplicate insertion** — insert the key before observable local-delivery or
    forwarding side effects. The committed actions form the first-seen result.
 10. **Local and/or relay action** — dispatch a locally eligible opaque endpoint
-    payload only to the Agent 4-defined channel open/replay boundary; independently
-    emit each approved forwarding copy with decremented hop limit and all other
-    envelope semantics preserved. A profile-generated control
+    payload only to the Agent 4-defined channel open/replay boundary;
+    independently emit each approved forwarding action with decremented hop
+    limit and all other envelope semantics preserved. A profile-generated control
     update is a new semantic packet with its own packet identity, not a relay
     copy or a way to reset endpoint-data lifetime.
-11. **Inner authorization** — only a local endpoint that receives an accepted
-    channel-security/replay verdict may decode and authorize a CHANNEL, PTT, or
-    AUDIO action and mutate its state.
+11. **Endpoint protected-action subpipeline** — only for local endpoint
+    delivery: select a bounded security-profile header/context; authenticate/
+    open into private provisional storage; obtain and atomically commit the
+    distinct security-replay verdict; expose no plaintext or provisional
+    context unless both accept; perform bounded inner decode and critical-
+    extension validation; authorize the complete action with authenticated-
+    principal/action-subject separation; then check semantic preconditions,
+    reserve bounded state, and atomically apply the CHANNEL, PTT, or AUDIO
+    transition. Only the resulting permitted application event may cross the
+    endpoint boundary. Relays never execute this subpipeline.
 12. **Bounded observability** — record a safe local reason/metric without
     plaintext payload, secrets, audio, or unnecessary stable identity.
 
@@ -416,6 +442,14 @@ fanout, and enqueue failure. It must also define which reserved actions form the
 atomic first-seen result when only some fanout reservations succeed. These are
 explicit Agent 3/Agent 4 and EXP-016 review questions, not implementation
 choices.
+
+A peer-unicast egress action MUST NOT target the exact ingress directional peer
+link. An exact routing profile MAY permit a different admitted peer link on the
+same attachment or a shared-medium emission that the ingress peer can hear,
+but it must pin listener eligibility, maximum recipient fanout, packet/byte/work
+accounting, duplicate effects, and loop behavior. Attachment identity alone is
+therefore insufficient to decide forwarding eligibility. The same rules apply
+to reservations, partial-action policy, semantic vectors, and observability.
 
 Stage 5 claim-freshness/replay checks are provisional if they require mutable
 authoritative state. Every exact profile must define the claim replay key and
@@ -496,11 +530,13 @@ forwarding-immutable, hop-mutable, or transport-local and identifies who may
 assert/change it, its security coverage, and the attacker covered. The future
 endpoint protection or a separate origin proof must bind all immutable outer
 semantics whose substitution affects delivery, duplicates, scheduling,
-interpretation, or authorization, including the exact pair, class/type, origin,
-packet identity, routing directive, traffic treatment, payload length/content,
-and applicable extension identifiers/criticality/values. The endpoint provides
-an endpoint-visible treatment mismatch verdict. Exact coverage and retry-under-
-new-packet-ID behavior require joint Agent 1/4 and EXP-002 review.
+interpretation, or authorization, including the exact pair, class/type,
+profile-supplied duplicate-scope inputs (including any profile-selected origin
+routing context), packet identity, routing directive, traffic treatment,
+payload length/content, and applicable extension identifiers/criticality/values.
+The endpoint provides an endpoint-visible treatment mismatch verdict. Exact
+coverage and retry-under-new-packet-ID behavior require joint Agent 1/4 and
+EXP-002 review.
 
 This RFC does not add a signature, tag, nonce, key, algorithm ID, channel
 selector, epoch, authenticated origin budget, or sender ID merely to complete a
@@ -511,23 +547,25 @@ staleness remain three independent results in specifications and vectors.
 
 ## Privacy and metadata considerations
 
-Envelope format/profile, outer class/type, packet identity, routing origin and
-target, hop limit, traffic treatment, length, timing, capability state, and
-extension patterns can enable correlation. An opaque payload is not a claim of
+Envelope format/profile, outer class/type, packet identity, any profile-selected
+routing origin and target, hop limit, traffic treatment, length, timing,
+capability state, and extension patterns can enable correlation. An opaque
+payload is not a claim of
 anonymity, unlinkability, or metadata privacy.
 
 The initial observer-by-field budget is in
 [`relay-security.md`](../security/relay-security.md). EXP-007 must justify every
 visible field against colluding relays and assess whether a coarse traffic
-treatment is necessary. Origin/target/packet contexts must not be raw stable
-credentials and require minimum scope/rotation rules. Channel selector,
-member/sender identity, PTT request/grant, stream ID, codec, key epoch, and
-inner subtype remain inside the opaque endpoint payload by default.
+treatment is necessary. Any selected origin/target/packet contexts must not be
+raw stable credentials and require minimum scope/rotation rules. Channel
+selector, member/sender identity, PTT request/grant, stream ID, codec, key epoch,
+and inner subtype remain inside the opaque endpoint payload by default.
 
 ## Routing considerations
 
 Agent 3 must define target kinds, local-delivery predicates, propagation and
 fanout, routing-control types, no-route behavior, retry/queue semantics,
+peer-unicast versus shared-medium egress actions, listener/work accounting,
 numeric hop and cache bounds, and loops beyond hop limit/duplicate suppression.
 
 Routing consumes only validated outer metadata, admitted capabilities, abstract
@@ -551,7 +589,9 @@ evidence needed for frame and payload maxima.
 ## Test-vector and interoperability plan
 
 Semantic vectors must cover exact-profile offer/selection/echo and failure,
-direct delivery at hop limit 1, forwarding from 2 to 1, fanout decrement, no
+direct delivery at hop limit 1, forwarding from 2 to 1, rejection of exact
+ingress-peer-link bounce, a different peer link on the same attachment,
+profile-pinned shared-medium listener/accounting behavior, fanout decrement, no
 increase/reset, first-seen duplicate behavior, concurrent/higher-hop duplicate
 arrival, declared-capacity saturation, atomic no-effect/partial-fanout policy,
 unknown optional preservation, unknown critical and unknown outer-semantic
@@ -582,7 +622,8 @@ identifier and pair/vector-set pin. Released vectors are never rewritten.
 - What are the hop-limit maximum, `minimumDuplicateCapacity`, configured-capacity
   declaration rules, and `duplicateRetention` values? Owner: Agent 3;
   EXP-003/EXP-004/EXP-016.
-- How are packet identity and origin routing context generated, bound, rotated,
+- Which profile inputs supply duplicate scope, when is a distinct origin routing
+  context required, and how are scope/packet identity generated, bound, rotated,
   and protected from tracking/cache poisoning? Owner: Agent 4 + Agent 3;
   EXP-005/EXP-007/EXP-016.
 - Which outer fields and mutable hop state receive which security coverage?
@@ -607,7 +648,8 @@ identifier and pair/vector-set pin. Released vectors are never rewritten.
 
 ## Acceptance blockers
 
-- routing target kinds, propagation, and numeric bounds are unresolved;
+- routing target kinds, duplicate-scope inputs, propagation, egress-action
+  accounting, and numeric bounds are unresolved;
 - identity/session construction, outer/control origin integrity, replay
   construction, and mutable-field protection are unresolved;
 - EXP-002 has not selected an encoding or proved extension preservation;
@@ -627,6 +669,11 @@ identifier and pair/vector-set pin. Released vectors are never rewritten.
   claim admission, per-field security scope, malicious-peer duplicate quotas,
   explicit mutable-hop limits, and a relay metadata budget. No security
   construction or new field was selected; RFC remains Draft.
+- 2026-09-02: Wave 0 integration review replaced the attachment-wide forwarding
+  restriction with a directional-peer-link/shared-medium action boundary,
+  generalized duplicate correlation to a profile-supplied scope, and made the
+  endpoint protected-action subpipeline explicit. No routing, identity,
+  security, or wire construction was selected; RFC remains Draft.
 
 ## References
 
