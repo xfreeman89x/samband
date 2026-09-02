@@ -47,6 +47,7 @@ REQUIRED_FILES = (
     ".gitignore",
     "docs/architecture/system-overview.md",
     "docs/architecture/network-model.md",
+    "docs/architecture/identity-domains.md",
     "docs/architecture/component-model.md",
     "docs/architecture/dependency-graph.md",
     "docs/architecture/repository-layout.md",
@@ -57,6 +58,7 @@ REQUIRED_FILES = (
     "docs/architecture/simulator-first.md",
     "docs/architecture/milestone-acceptance.md",
     "docs/architecture/risk-register.md",
+    "docs/architecture/wave0-integration-review.md",
     "docs/rfc/RFC-TEMPLATE.md",
     "docs/adr/ADR-TEMPLATE.md",
     "docs/security/threat-model.md",
@@ -64,6 +66,7 @@ REQUIRED_FILES = (
     "docs/research/experiment-backlog.md",
     "docs/agents/PROMPTS.md",
     "docs/agents/HANDOFF-TEMPLATE.md",
+    "protocol/spec/v0x-simulation-profile.md",
 )
 
 RFC_REQUIRED = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008"}

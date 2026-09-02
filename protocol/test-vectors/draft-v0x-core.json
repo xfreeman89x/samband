@@ -1,0 +1,1793 @@
+{
+  "formatVersion": "samband-vector-set/0.1-draft",
+  "vectorSetId": "SP-VSET-DRAFT-V0X-CORE",
+  "status": "draft",
+  "envelopeFormat": "draft/semantic-envelope",
+  "protocolProfile": "draft/v0.x",
+  "governingReferences": [
+    {
+      "document": "protocol/spec/v0x-experimental.md",
+      "section": "Outer processing order"
+    },
+    {
+      "document": "docs/rfc/RFC-0004-relay-envelope.md",
+      "section": "Processing model"
+    }
+  ],
+  "supersedes": [],
+  "vectors": [
+    {
+      "id": "SP-V0X-OUTER-HOP-DIRECT-001",
+      "layer": "outer",
+      "classification": "positive",
+      "purpose": "A locally eligible packet at hop limit one is delivered but not forwarded.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Hop-limit semantics (Protocol v0.x TTL)"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-outer-admission",
+        "synthetic-routing-disposition"
+      ],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": []
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "origin-a",
+        "packetIdentity": "packet-001",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-local"
+        },
+        "hopLimit": 1,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [],
+        "opaquePayloadLength": 16,
+        "opaquePayloadReference": "opaque-payload-001"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticOuterAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticRoutingDisposition",
+          "data": {
+            "eligibleForLocalDelivery": true,
+            "eligibleForForwarding": false,
+            "egressActions": [],
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "OUTER_DISPATCHED_LOCAL"
+          }
+        ],
+        "state": {
+          "duplicateKeysAdded": [
+            {
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "profileDuplicateScope": "origin-a",
+              "packetIdentity": "packet-001"
+            }
+          ]
+        },
+        "emissions": [],
+        "observations": [
+          "Opaque payload is dispatched to the local security boundary.",
+          "Hop limit is unchanged by local delivery."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 1,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "Outer processing does not parse the opaque endpoint payload."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-OUTER-HOP-FORWARD-002",
+      "layer": "outer",
+      "classification": "positive",
+      "purpose": "A forwardable packet at hop limit two emits one preserved copy to a different peer link on the ingress attachment at hop limit one.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Hop-limit semantics (Protocol v0.x TTL)"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-outer-admission",
+        "synthetic-routing-disposition"
+      ],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": []
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "origin-a",
+        "packetIdentity": "packet-002",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-remote"
+        },
+        "hopLimit": 2,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [],
+        "opaquePayloadLength": 16,
+        "opaquePayloadReference": "opaque-payload-002"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticOuterAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticRoutingDisposition",
+          "data": {
+            "eligibleForLocalDelivery": false,
+            "eligibleForForwarding": true,
+            "egressActions": [
+              {
+                "actionKind": "PEER_UNICAST",
+                "attachment": "link-in",
+                "peerSession": "session-other",
+                "directionalPeerLink": "peer-link-other",
+                "fanoutUnits": 1,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
+            ],
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "OUTER_FORWARDED"
+          }
+        ],
+        "state": {
+          "duplicateKeysAdded": [
+            {
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "profileDuplicateScope": "origin-a",
+              "packetIdentity": "packet-002"
+            }
+          ]
+        },
+        "emissions": [
+          {
+            "action": {
+              "actionKind": "PEER_UNICAST",
+              "attachment": "link-in",
+              "peerSession": "session-other",
+              "directionalPeerLink": "peer-link-other",
+              "fanoutUnits": 1,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
+            "packet": {
+              "outerClass": "OPAQUE_ENDPOINT",
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "declaredFrameBytes": 96,
+              "originRoutingContext": "origin-a",
+              "packetIdentity": "packet-002",
+              "routingDirective": {
+                "targetKind": "synthetic.test-opaque-target",
+                "testOnly": true,
+                "declaredLengthBytes": 32,
+                "opaqueTarget": "target-remote"
+              },
+              "hopLimit": 1,
+              "trafficTreatment": "BOUNDED_CONTROL",
+              "extensions": [],
+              "opaquePayloadLength": 16,
+              "opaquePayloadReference": "opaque-payload-002"
+            }
+          }
+        ],
+        "observations": [
+          "Packet identity remains unchanged across the relay.",
+          "A different directional peer link on the ingress attachment is eligible under the pinned fixture action model."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 1,
+        "maxPacketsEmitted": 1,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "The relay does not parse the opaque endpoint payload."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-OUTER-DUPLICATE-HIGHER-HOP-003",
+      "layer": "outer",
+      "classification": "negative",
+      "purpose": "A later copy with the same duplicate key and greater hop limit is still dropped without retention refresh.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Packet identity and duplicate suppression"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-outer-admission"
+      ],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": [
+          {
+            "key": {
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "profileDuplicateScope": "origin-a",
+              "packetIdentity": "packet-003"
+            },
+            "expiresAtVirtualTime": 100
+          }
+        ]
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "origin-a",
+        "packetIdentity": "packet-003",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-duplicate"
+        },
+        "hopLimit": 5,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [],
+        "opaquePayloadLength": 16,
+        "opaquePayloadReference": "opaque-payload-003"
+      },
+      "orderedEvents": [
+        {
+          "at": 10,
+          "action": "syntheticOuterAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 10,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "DUPLICATE"
+          }
+        ],
+        "state": {
+          "duplicateKey": {
+            "envelopeFormat": "draft/semantic-envelope",
+            "protocolProfile": "draft/v0.x",
+            "profileDuplicateScope": "origin-a",
+            "packetIdentity": "packet-003"
+          },
+          "expiresAtVirtualTime": 100,
+          "retentionRefreshed": false
+        },
+        "emissions": [],
+        "observations": [
+          "Higher remaining hop limit does not override first-seen suppression."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "Duplicate processing does not parse the opaque payload."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-OUTER-OPTIONAL-EXTENSION-004",
+      "layer": "outer",
+      "classification": "positive",
+      "purpose": "An unknown optional outer extension is ignored semantically and preserved during forwarding.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Unknown field, extension, and message behavior"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-outer-admission",
+        "synthetic-routing-disposition"
+      ],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": []
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "origin-a",
+        "packetIdentity": "packet-004",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-remote"
+        },
+        "hopLimit": 2,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [
+          {
+            "identifier": "experimental.unknown-7",
+            "critical": false,
+            "opaqueSemanticValue": "fixture-7",
+            "opaqueSemanticValueLength": 9
+          }
+        ],
+        "opaquePayloadLength": 8,
+        "opaquePayloadReference": "opaque-payload-004"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticOuterAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticRoutingDisposition",
+          "data": {
+            "eligibleForLocalDelivery": false,
+            "eligibleForForwarding": true,
+            "egressActions": [
+              {
+                "actionKind": "PEER_UNICAST",
+                "attachment": "link-b",
+                "peerSession": "session-b",
+                "directionalPeerLink": "peer-link-b",
+                "fanoutUnits": 1,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
+            ],
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "OUTER_FORWARDED"
+          }
+        ],
+        "state": {
+          "duplicateKeysAdded": [
+            {
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "profileDuplicateScope": "origin-a",
+              "packetIdentity": "packet-004"
+            }
+          ]
+        },
+        "emissions": [
+          {
+            "action": {
+              "actionKind": "PEER_UNICAST",
+              "attachment": "link-b",
+              "peerSession": "session-b",
+              "directionalPeerLink": "peer-link-b",
+              "fanoutUnits": 1,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
+            "packet": {
+              "outerClass": "OPAQUE_ENDPOINT",
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "declaredFrameBytes": 96,
+              "originRoutingContext": "origin-a",
+              "packetIdentity": "packet-004",
+              "routingDirective": {
+                "targetKind": "synthetic.test-opaque-target",
+                "testOnly": true,
+                "declaredLengthBytes": 32,
+                "opaqueTarget": "target-remote"
+              },
+              "hopLimit": 1,
+              "trafficTreatment": "BOUNDED_CONTROL",
+              "extensions": [
+                {
+                  "identifier": "experimental.unknown-7",
+                  "critical": false,
+                  "opaqueSemanticValue": "fixture-7",
+                  "opaqueSemanticValueLength": 9
+                }
+              ],
+              "opaquePayloadLength": 8,
+              "opaquePayloadReference": "opaque-payload-004"
+            }
+          }
+        ],
+        "observations": [
+          "Unknown optional extension has no local semantic effect."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 1,
+        "maxPacketsEmitted": 1,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "Exact byte preservation remains an EXP-002 wire-vector requirement."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-OUTER-CRITICAL-EXTENSION-005",
+      "layer": "outer",
+      "classification": "negative",
+      "purpose": "An unknown critical outer extension is rejected before authoritative state mutation.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Unknown field, extension, and message behavior"
+        }
+      ],
+      "requiredFeatures": [],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": []
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "untrusted-origin",
+        "packetIdentity": "packet-005",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-rejected"
+        },
+        "hopLimit": 2,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [
+          {
+            "identifier": "experimental.unknown-critical-9",
+            "critical": true,
+            "opaqueSemanticValue": "fixture-9",
+            "opaqueSemanticValueLength": 9
+          }
+        ],
+        "opaquePayloadLength": 8,
+        "opaquePayloadReference": "opaque-payload-005"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "UNSUPPORTED_CRITICAL_EXTENSION"
+          }
+        ],
+        "state": {
+          "duplicateKeysAdded": []
+        },
+        "emissions": [],
+        "observations": [
+          "No outer security or payload processing is requested after structural rejection."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "Rejection is local and emits no network error."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CAP-STALE-SNAPSHOT-001",
+      "layer": "capability",
+      "classification": "negative",
+      "purpose": "A lower-generation full capability snapshot cannot resurrect or replace current state.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Capability representation"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-session-admission",
+        "synthetic-claim-admission"
+      ],
+      "initialState": {
+        "fixtureCapabilityRegistry": [
+          {
+            "identifier": "synthetic.test-relay-forwarding",
+            "testOnly": true
+          }
+        ],
+        "fixtureCapabilityProfile": {
+          "maximumSnapshotEntries": 4,
+          "maximumParametersPerEntry": 4,
+          "maximumValidityTicks": 200,
+          "maximumGeneration": 255,
+          "canonicalEquality": "synthetic.logical-snapshot-v1"
+        },
+        "peerSession": {
+          "id": "session-b",
+          "admissionState": "ADMITTED"
+        },
+        "capabilityHighWaterGeneration": 3,
+        "capabilitySnapshot": {
+          "generation": 3,
+          "validFor": 100,
+          "receivedAtVirtualTime": 0,
+          "entries": [],
+          "expiresAtVirtualTime": 100
+        }
+      },
+      "input": {
+        "peerSession": "session-b",
+        "capabilitySnapshot": {
+          "generation": 2,
+          "validFor": 90,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ]
+        }
+      },
+      "orderedEvents": [
+        {
+          "at": 10,
+          "action": "syntheticSessionAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 10,
+          "action": "syntheticClaimAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 10,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "capability",
+            "result": "STALE"
+          }
+        ],
+        "state": {
+          "peerSession": {
+            "id": "session-b",
+            "admissionState": "ADMITTED"
+          },
+          "capabilityHighWaterGeneration": 3,
+          "capabilitySnapshot": {
+            "generation": 3,
+            "validFor": 100,
+            "receivedAtVirtualTime": 0,
+            "entries": [],
+            "expiresAtVirtualTime": 100
+          }
+        },
+        "emissions": [],
+        "observations": [
+          "Relay forwarding remains unavailable."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "The stale snapshot does not refresh current validity."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CAP-IDEMPOTENT-NO-REFRESH-002",
+      "layer": "capability",
+      "classification": "positive",
+      "purpose": "An identical same-generation full snapshot is idempotent and does not refresh its receipt-relative expiry.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Capability representation"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-session-admission",
+        "synthetic-claim-admission"
+      ],
+      "initialState": {
+        "fixtureCapabilityRegistry": [
+          {
+            "identifier": "synthetic.test-relay-forwarding",
+            "testOnly": true
+          }
+        ],
+        "fixtureCapabilityProfile": {
+          "maximumSnapshotEntries": 4,
+          "maximumParametersPerEntry": 4,
+          "maximumValidityTicks": 200,
+          "maximumGeneration": 255,
+          "canonicalEquality": "synthetic.logical-snapshot-v1"
+        },
+        "peerSession": {
+          "id": "session-b",
+          "admissionState": "ADMITTED"
+        },
+        "capabilityHighWaterGeneration": 4,
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "receivedAtVirtualTime": 0,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ],
+          "expiresAtVirtualTime": 100
+        }
+      },
+      "input": {
+        "peerSession": "session-b",
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ]
+        }
+      },
+      "orderedEvents": [
+        {
+          "at": 10,
+          "action": "syntheticSessionAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 10,
+          "action": "syntheticClaimAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 10,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "capability",
+            "result": "IDEMPOTENT_NO_CHANGE"
+          }
+        ],
+        "state": {
+          "peerSession": {
+            "id": "session-b",
+            "admissionState": "ADMITTED"
+          },
+          "capabilityHighWaterGeneration": 4,
+          "capabilitySnapshot": {
+            "generation": 4,
+            "validFor": 100,
+            "receivedAtVirtualTime": 0,
+            "entries": [
+              {
+                "identifier": "synthetic.test-relay-forwarding",
+                "critical": false,
+                "parameters": {}
+              }
+            ],
+            "expiresAtVirtualTime": 100
+          }
+        },
+        "emissions": [],
+        "observations": [
+          "A same-generation identical retry does not move expiry from virtual time 100 to 110."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "The existing canonical snapshot and generation high-water mark remain unchanged."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CAP-POST-EXPIRY-IDENTICAL-003",
+      "layer": "capability",
+      "classification": "negative",
+      "purpose": "At the exact expiry tick, a formerly identical same-generation snapshot is stale after start-of-tick withdrawal.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Capability representation"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-session-admission",
+        "synthetic-claim-admission"
+      ],
+      "initialState": {
+        "fixtureCapabilityRegistry": [
+          {
+            "identifier": "synthetic.test-relay-forwarding",
+            "testOnly": true
+          }
+        ],
+        "fixtureCapabilityProfile": {
+          "maximumSnapshotEntries": 4,
+          "maximumParametersPerEntry": 4,
+          "maximumValidityTicks": 200,
+          "maximumGeneration": 255,
+          "canonicalEquality": "synthetic.logical-snapshot-v1"
+        },
+        "peerSession": {
+          "id": "session-b",
+          "admissionState": "ADMITTED"
+        },
+        "capabilityHighWaterGeneration": 4,
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "receivedAtVirtualTime": 0,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ],
+          "expiresAtVirtualTime": 100
+        },
+        "relayForwardingAvailable": true
+      },
+      "input": {
+        "peerSession": "session-b",
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ]
+        }
+      },
+      "orderedEvents": [
+        {
+          "at": 100,
+          "action": "syntheticSessionAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 100,
+          "action": "syntheticClaimAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 100,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "capability",
+            "result": "STALE"
+          }
+        ],
+        "state": {
+          "peerSession": {
+            "id": "session-b",
+            "admissionState": "ADMITTED"
+          },
+          "capabilityHighWaterGeneration": 4,
+          "capabilitySnapshot": null,
+          "relayForwardingAvailable": false
+        },
+        "emissions": [],
+        "observations": [
+          "The snapshot expires before events at virtual tick 100 and relay willingness is withdrawn.",
+          "The retained generation high-water rejects generation 4 without needing expired canonical content."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "No relay willingness is resurrected and no canonical-content comparison state is retained."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CAP-POST-EXPIRY-CHANGED-004",
+      "layer": "capability",
+      "classification": "negative",
+      "purpose": "At the exact expiry tick, changed content at the retained generation high-water is stale after withdrawal.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Capability representation"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-session-admission",
+        "synthetic-claim-admission"
+      ],
+      "initialState": {
+        "fixtureCapabilityRegistry": [
+          {
+            "identifier": "synthetic.test-relay-forwarding",
+            "testOnly": true
+          }
+        ],
+        "fixtureCapabilityProfile": {
+          "maximumSnapshotEntries": 4,
+          "maximumParametersPerEntry": 4,
+          "maximumValidityTicks": 200,
+          "maximumGeneration": 255,
+          "canonicalEquality": "synthetic.logical-snapshot-v1"
+        },
+        "peerSession": {
+          "id": "session-b",
+          "admissionState": "ADMITTED"
+        },
+        "capabilityHighWaterGeneration": 4,
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "receivedAtVirtualTime": 0,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ],
+          "expiresAtVirtualTime": 100
+        },
+        "relayForwardingAvailable": true
+      },
+      "input": {
+        "peerSession": "session-b",
+        "capabilitySnapshot": {
+          "generation": 4,
+          "validFor": 100,
+          "entries": []
+        }
+      },
+      "orderedEvents": [
+        {
+          "at": 100,
+          "action": "syntheticSessionAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 100,
+          "action": "syntheticClaimAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 100,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "capability",
+            "result": "STALE"
+          }
+        ],
+        "state": {
+          "peerSession": {
+            "id": "session-b",
+            "admissionState": "ADMITTED"
+          },
+          "capabilityHighWaterGeneration": 4,
+          "capabilitySnapshot": null,
+          "relayForwardingAvailable": false
+        },
+        "emissions": [],
+        "observations": [
+          "The snapshot expires before events at virtual tick 100 and relay willingness is withdrawn.",
+          "Changed generation-4 content is stale from the high-water mark alone; expired content need not be compared."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "No relay willingness is resurrected and no canonical-content comparison state is retained."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CAP-CLAIM-REJECT-005",
+      "layer": "capability",
+      "classification": "negative",
+      "purpose": "An admitted immediate peer cannot mutate capability state when the distinct claim-security admission rejects the snapshot.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Capability representation"
+        },
+        {
+          "document": "protocol/spec/v0x-experimental.md",
+          "section": "Capability snapshots"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-session-admission",
+        "synthetic-claim-admission"
+      ],
+      "initialState": {
+        "fixtureCapabilityRegistry": [
+          {
+            "identifier": "synthetic.test-relay-forwarding",
+            "testOnly": true
+          }
+        ],
+        "fixtureCapabilityProfile": {
+          "maximumSnapshotEntries": 4,
+          "maximumParametersPerEntry": 4,
+          "maximumValidityTicks": 200,
+          "maximumGeneration": 255,
+          "canonicalEquality": "synthetic.logical-snapshot-v1"
+        },
+        "peerSession": {
+          "id": "session-b",
+          "admissionState": "ADMITTED"
+        },
+        "capabilityHighWaterGeneration": null,
+        "capabilitySnapshot": null,
+        "relayForwardingAvailable": false
+      },
+      "input": {
+        "peerSession": "session-b",
+        "capabilitySnapshot": {
+          "generation": 1,
+          "validFor": 50,
+          "entries": [
+            {
+              "identifier": "synthetic.test-relay-forwarding",
+              "critical": false,
+              "parameters": {}
+            }
+          ]
+        }
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticSessionAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticClaimAdmission",
+          "data": {
+            "disposition": "REJECTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "capability",
+            "result": "SECURITY_REJECTED"
+          }
+        ],
+        "state": {
+          "peerSession": {
+            "id": "session-b",
+            "admissionState": "ADMITTED"
+          },
+          "capabilityHighWaterGeneration": null,
+          "capabilitySnapshot": null,
+          "relayForwardingAvailable": false
+        },
+        "emissions": [],
+        "observations": [
+          "Immediate-peer admission does not substitute for capability-claim admission.",
+          "The rejected synthetic claim creates no generation, expiry, or relay-willingness state."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "The verdict is synthetic and non-cryptographic; the case tests only the security boundary and state ordering."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-CHSEC-REPLAY-REJECT-001",
+      "layer": "channel-security",
+      "classification": "negative",
+      "purpose": "A synthetic security-replay rejection stops endpoint processing before inner plaintext decode or state mutation.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0006-encrypted-channel-payload.md",
+          "section": "Test-vector and interoperability plan"
+        },
+        {
+          "document": "protocol/spec/v0x-experimental.md",
+          "section": "Endpoint processing order"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-channel-open",
+        "synthetic-security-replay"
+      ],
+      "initialState": {
+        "channelOperationsApplied": 0,
+        "pttState": "IDLE",
+        "activeStreams": []
+      },
+      "input": {
+        "opaqueEndpointContainerReference": "fixture-replay-rejected-001",
+        "opaquePayloadLength": 24
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticChannelOpen",
+          "data": {
+            "disposition": "ACCEPTED",
+            "channelContext": "channel-fixture-replay",
+            "authenticatedPrincipalContext": "principal-fixture-replay",
+            "securityContext": "security-fixture-epoch-replay",
+            "plaintextExposed": false,
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticSecurityReplay",
+          "data": {
+            "disposition": "REJECTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "channel-security",
+            "result": "SECURITY_REJECTED"
+          }
+        ],
+        "state": {
+          "channelOperationsApplied": 0,
+          "pttState": "IDLE",
+          "activeStreams": []
+        },
+        "emissions": [],
+        "observations": [
+          "No synthetic inner-decode or action-authorization event is invoked.",
+          "No endpoint plaintext is exposed and no inner state is mutated."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "The rejected replay verdict is synthetic, non-cryptographic, and makes no replay-protection claim."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-AUDIO-MEDIA-WITHOUT-GRANT-001",
+      "layer": "audio",
+      "classification": "negative",
+      "purpose": "A media stream request cannot create PTT ownership while the action subject has no accepted grant.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0007-ptt-arbitration.md",
+          "section": "Proposed abstract state machine"
+        },
+        {
+          "document": "docs/rfc/RFC-0008-audio-transport.md",
+          "section": "Proposed stream semantics"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-channel-open",
+        "synthetic-security-replay",
+        "synthetic-action-authorization"
+      ],
+      "initialState": {
+        "pttState": "IDLE",
+        "currentGrant": null,
+        "activeStreams": []
+      },
+      "input": {
+        "innerFamily": "AUDIO_CONTROL",
+        "innerType": "STREAM_START",
+        "streamIdentity": "stream-001",
+        "streamOwnerSubject": "subject-a",
+        "grantReference": "grant-missing"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticChannelOpen",
+          "data": {
+            "disposition": "ACCEPTED",
+            "channelContext": "channel-fixture-a",
+            "authenticatedPrincipalContext": "principal-a",
+            "securityContext": "security-fixture-epoch-a",
+            "plaintextExposed": false,
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticSecurityReplay",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticActionAuthorization",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "audio",
+            "result": "STATE_CONFLICT"
+          }
+        ],
+        "state": {
+          "pttState": "IDLE",
+          "currentGrant": null,
+          "activeStreams": []
+        },
+        "emissions": [],
+        "observations": [
+          "Media cannot establish, extend, or transfer PTT ownership."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 0,
+        "maxPacketsEmitted": 0,
+        "maxPayloadBytesMaterialized": 0,
+        "notes": [
+          "Synthetic security dispositions test ordering only and make no security claim."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    },
+    {
+      "id": "SP-V0X-OUTER-UNKNOWN-INNER-FORWARD-006",
+      "layer": "outer",
+      "classification": "positive",
+      "purpose": "A combined endpoint and relay uses a profile-pinned shared-medium action while its local endpoint rejects an unsupported inner type.",
+      "governingReferences": [
+        {
+          "document": "docs/rfc/RFC-0001-samband-network-model.md",
+          "section": "Two-level message taxonomy"
+        },
+        {
+          "document": "docs/rfc/RFC-0004-relay-envelope.md",
+          "section": "Processing model"
+        }
+      ],
+      "requiredFeatures": [
+        "synthetic-outer-admission",
+        "synthetic-routing-disposition",
+        "synthetic-channel-open",
+        "synthetic-security-replay",
+        "synthetic-inner-decode"
+      ],
+      "initialState": {
+        "fixtureProfile": {
+          "envelopeFormat": "draft/semantic-envelope",
+          "protocolProfile": "draft/v0.x",
+          "maximumFrameBytes": 128,
+          "maximumOpaquePayloadBytes": 64,
+          "maximumOuterExtensions": 4,
+          "maximumOuterExtensionValueBytes": 32,
+          "maximumRoutingDirectiveBytes": 64,
+          "profileMaximumHopLimit": 8,
+          "minimumDuplicateCapacity": 4,
+          "configuredDuplicateCapacity": 8,
+          "duplicateRetentionTicks": 100,
+          "duplicateScopeSource": "synthetic.origin-routing-context-v1",
+          "originRoutingContextRequired": true,
+          "routingDirectiveRequiredForOpaqueEndpoint": true,
+          "maximumForwardingFanout": 2,
+          "maximumEgressWorkUnits": 2,
+          "availableIngressPacketReservations": 1,
+          "availableIngressByteReservations": 128,
+          "availableLocalDispatchPacketReservations": 1,
+          "availableLocalDispatchByteReservations": 128,
+          "availableForwardingQueuePacketReservations": 2,
+          "availableForwardingQueueByteReservations": 256,
+          "reservationScope": "synthetic.shared-across-traffic-treatments",
+          "egressActionModel": "synthetic.directional-peer-link-and-shared-medium-v1",
+          "sharedMediumListenerAccounting": "synthetic.explicit-directional-peer-link-list-v1",
+          "routingTargetKind": {
+            "identifier": "synthetic.test-opaque-target",
+            "testOnly": true
+          }
+        },
+        "ingressAttachment": "link-in",
+        "ingressPeerSession": "session-in",
+        "ingressDirectionalPeerLink": "peer-link-in",
+        "duplicateKeys": []
+      },
+      "input": {
+        "outerClass": "OPAQUE_ENDPOINT",
+        "envelopeFormat": "draft/semantic-envelope",
+        "protocolProfile": "draft/v0.x",
+        "declaredFrameBytes": 96,
+        "originRoutingContext": "origin-a",
+        "packetIdentity": "packet-006",
+        "routingDirective": {
+          "targetKind": "synthetic.test-opaque-target",
+          "testOnly": true,
+          "declaredLengthBytes": 32,
+          "opaqueTarget": "target-local-and-remote"
+        },
+        "hopLimit": 3,
+        "trafficTreatment": "BOUNDED_CONTROL",
+        "extensions": [],
+        "opaquePayloadLength": 24,
+        "opaquePayloadReference": "opaque-payload-006"
+      },
+      "orderedEvents": [
+        {
+          "at": 0,
+          "action": "syntheticOuterAdmission",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticRoutingDisposition",
+          "data": {
+            "eligibleForLocalDelivery": true,
+            "eligibleForForwarding": true,
+            "egressActions": [
+              {
+                "actionKind": "SHARED_MEDIUM",
+                "attachment": "link-in",
+                "listenerPeerLinks": [
+                  {
+                    "peerSession": "session-in",
+                    "directionalPeerLink": "peer-link-in"
+                  },
+                  {
+                    "peerSession": "session-c",
+                    "directionalPeerLink": "peer-link-c"
+                  }
+                ],
+                "fanoutUnits": 2,
+                "workUnits": 1,
+                "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+                "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+              }
+            ],
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticChannelOpen",
+          "data": {
+            "disposition": "ACCEPTED",
+            "channelContext": "channel-fixture-a",
+            "authenticatedPrincipalContext": "principal-fixture-a",
+            "securityContext": "security-fixture-epoch-a",
+            "plaintextExposed": false,
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticSecurityReplay",
+          "data": {
+            "disposition": "ACCEPTED",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "syntheticInnerDecode",
+          "data": {
+            "innerFamily": "CHANNEL",
+            "innerType": "EXPERIMENTAL_UNKNOWN",
+            "disposition": "UNSUPPORTED_MESSAGE",
+            "securityClaim": false
+          }
+        },
+        {
+          "at": 0,
+          "action": "injectInput",
+          "data": {}
+        }
+      ],
+      "expected": {
+        "outcomes": [
+          {
+            "layer": "outer",
+            "result": "OUTER_DISPATCHED_LOCAL_AND_FORWARDED"
+          },
+          {
+            "layer": "channel",
+            "result": "UNSUPPORTED_MESSAGE"
+          }
+        ],
+        "state": {
+          "duplicateKeysAdded": [
+            {
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "profileDuplicateScope": "origin-a",
+              "packetIdentity": "packet-006"
+            }
+          ],
+          "localInnerOutcome": "UNSUPPORTED_MESSAGE"
+        },
+        "emissions": [
+          {
+            "action": {
+              "actionKind": "SHARED_MEDIUM",
+              "attachment": "link-in",
+              "listenerPeerLinks": [
+                {
+                  "peerSession": "session-in",
+                  "directionalPeerLink": "peer-link-in"
+                },
+                {
+                  "peerSession": "session-c",
+                  "directionalPeerLink": "peer-link-c"
+                }
+              ],
+              "fanoutUnits": 2,
+              "workUnits": 1,
+              "duplicateAccounting": "synthetic.per-reception-duplicate-key-v1",
+              "loopAccounting": "synthetic.common-hop-limit-plus-candidate-v1"
+            },
+            "packet": {
+              "outerClass": "OPAQUE_ENDPOINT",
+              "envelopeFormat": "draft/semantic-envelope",
+              "protocolProfile": "draft/v0.x",
+              "declaredFrameBytes": 96,
+              "originRoutingContext": "origin-a",
+              "packetIdentity": "packet-006",
+              "routingDirective": {
+                "targetKind": "synthetic.test-opaque-target",
+                "testOnly": true,
+                "declaredLengthBytes": 32,
+                "opaqueTarget": "target-local-and-remote"
+              },
+              "hopLimit": 2,
+              "trafficTreatment": "BOUNDED_CONTROL",
+              "extensions": [],
+              "opaquePayloadLength": 24,
+              "opaquePayloadReference": "opaque-payload-006"
+            }
+          }
+        ],
+        "observations": [
+          "Local inner-message support is not a foreign relay predicate."
+        ]
+      },
+      "resourceBounds": {
+        "maxStateEntriesAdded": 1,
+        "maxPacketsEmitted": 1,
+        "maxPayloadBytesMaterialized": 24,
+        "notes": [
+          "Only the local endpoint path receives synthetic opened bytes; the relay path remains opaque."
+        ]
+      },
+      "provenance": {
+        "kind": "hand-authored",
+        "source": "Samband Protocol v0.x Draft",
+        "revision": "2026-09-02"
+      },
+      "supersedes": []
+    }
+  ]
+}

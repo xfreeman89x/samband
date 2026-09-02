@@ -1,6 +1,8 @@
 # Protocol Compatibility
 
-Status: no compatibility profile exists.
+Status: no released compatibility profile exists. The Draft v0.x compatibility
+and negotiation model is in
+[`v0x-experimental.md`](v0x-experimental.md).
 
 This area will document supported protocol versions/profiles, negotiation,
 mandatory/optional features, deprecation, extension handling, vector-set pins,

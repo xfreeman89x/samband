@@ -37,6 +37,20 @@ and the review rules in [`../../GOVERNANCE.md`](../../GOVERNANCE.md).
 
 There are currently no Accepted RFCs and no stable Samband wire format.
 
+Agent 1's cross-RFC working synthesis is
+[`../../protocol/spec/v0x-experimental.md`](../../protocol/spec/v0x-experimental.md).
+The [`Wave 0 Integration Review`](../architecture/wave0-integration-review.md)
+reconciles the Protocol, Routing, and Security first passes. It authorizes only
+the bounded, non-production
+[`wave1-sim-v0.1`](../../protocol/spec/v0x-simulation-profile.md) subset; it does
+not change any RFC status.
+Agent 4's initial threat-model and security-contract review is indexed at
+[`../security/README.md`](../security/README.md) and incorporated as
+requirements in the RFC drafts. These are Draft review materials, not a
+normative specification, security claim, or implementation authorization. The
+vector carrier is likewise Draft pending construction-specific security
+fixtures and Agent 9 review.
+
 ## Creating an RFC
 
 Copy [`RFC-TEMPLATE.md`](RFC-TEMPLATE.md), obtain the next four-digit number,

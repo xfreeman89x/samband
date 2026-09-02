@@ -117,6 +117,11 @@ Collapsing these into one stable broadcast identifier is not assumed. Agent 4
 Security review and Agent 1 Protocol review are required by
 [`RFC-0002`](../rfc/RFC-0002-node-identity.md).
 
+The authoritative semantic domains, lifetimes, audiences, and permitted
+bindings are defined in [`identity-domains.md`](identity-domains.md). That
+architecture establishes separation only; concrete representations remain RFC,
+Routing, and Security work.
+
 ## Non-goals
 
 The network model does not require blockchain, cryptocurrency, permanent global

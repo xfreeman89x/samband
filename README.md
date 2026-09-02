@@ -12,10 +12,12 @@ Samband is licensed under the [Apache License 2.0](LICENSE).
 
 ## Project status
 
-Samband is in its architecture bootstrap phase. There is no working network,
-wire-compatible protocol, production application, or reviewed cryptographic
-design yet. The initial RFCs are drafts and must not be treated as an
-interoperability or security promise.
+Samband has completed its first architecture integration review. There is no
+working network, wire-compatible protocol, production application, or reviewed
+cryptographic design yet. The initial RFCs remain Draft and must not be treated
+as an interoperability or security promise. A narrowly scoped
+[`wave1-sim-v0.1`](protocol/spec/v0x-simulation-profile.md) contract authorizes
+deterministic non-production simulation only.
 
 The first implementation milestone is a deterministic simulator, not a mobile
 application and not production audio.
@@ -58,8 +60,8 @@ service. Audio is ephemeral: missed voice is not replayed or persisted.
   boundaries, risks, milestones, and shared contracts.
 - [`docs/rfc/`](docs/rfc/README.md) governs protocol semantics.
 - [`docs/adr/`](docs/adr/README.md) records implementation architecture.
-- [`docs/security/`](docs/security/README.md) contains the security review
-  surface and, after Agent 4 review, the threat model.
+- [`docs/security/`](docs/security/README.md) contains the initial threat model,
+  candidate security architecture, and still-open review gates.
 - [`docs/research/`](docs/research/README.md) tracks questions that require
   experiments rather than assumptions.
 

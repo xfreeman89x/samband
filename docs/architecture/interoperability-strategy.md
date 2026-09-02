@@ -32,10 +32,16 @@ extensions, truncation, invalid lengths, and unsupported versions.
 
 ### Security vectors
 
-After Agent 4 review, provide public non-secret fixtures for identity,
-authentication, protected envelopes, replay, membership, and key epochs using
-standard published algorithms. No real user key, channel secret, or captured
-payload is permitted.
+After a governing RFC selects an Agent 4-reviewed standard profile, provide
+public non-secret fixtures for identity, authentication, protected records,
+replay, membership, and key epochs. Profile-specific vector schemas must pin
+the standard/suite/revision, roles, transcript and associated-context bytes,
+synthetic inputs/fixed randomness, exact outputs/post-state, provenance, and
+resource bounds as required by
+[`FORMAT.md`](../../protocol/test-vectors/FORMAT.md). No real user key, channel
+secret, identity, captured payload, or human audio is permitted. Known-answer
+vectors are interoperability evidence, not proof of side-channel resistance,
+metadata privacy, secure storage, compromise recovery, or whole-system security.
 
 ### Scenario vectors
 
@@ -44,13 +50,19 @@ events, and expected metrics for simulator and physical conformance harnesses.
 
 ## Required vector metadata
 
-The exact machine-readable format remains an Agent 1/Agent 9 decision. Every
-vector must eventually identify:
+The exact machine-readable format remains an Agent 1/Agent 9 decision. Agent
+1's current Draft JSON carrier/schema is
+[`../../protocol/test-vectors/FORMAT.md`](../../protocol/test-vectors/FORMAT.md).
+It makes the proposal reviewable but does not resolve the Agent 9 gate or create
+a released canonical vector set.
+
+Every vector must eventually identify:
 
 - stable vector ID and schema version;
-- protocol version/profile and governing RFC/spec section;
+- exact envelope-format/protocol-profile pair and governing RFC/spec section;
+- exact security profile/construction/suite for a security vector;
 - purpose and positive or negative classification;
-- deterministic inputs and expected output or error category;
+- deterministic inputs and layered expected outputs or error categories;
 - resource bounds relevant to the case;
 - provenance/generator version when generated;
 - compatibility notes and replacement history.
